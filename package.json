@@ -1,0 +1,14 @@
+{
+  "name": "com.fixer33.ui-core",
+  "version": "1.0.0",
+  "displayName": "UI Core",
+  "description": "Core package for UI elements",
+  "unity": "6000.0",
+  "author": {
+    "name": "Fixer33",
+    "email": "fsfixer33@gmail.com",
+    "url": "https://github.com/Fixer33"
+  },
+  "samples": [
+  ]
+}
