@@ -10,5 +10,15 @@
     "url": "https://github.com/Fixer33"
   },
   "samples": [
+    {
+      "displayName": "Basic Canvas Views",
+      "description": "Contains basic view types (Animated, Fading, Instant, PanelScale). Some of them use DOTween package.",
+      "path": "Samples~/Basic Canvas Views"
+    },
+    {
+      "displayName": "Additional Canvas Views",
+      "description": "Contains additional canvas view implementations (Internet Popup, Paywall, Quit Popup, Loading screen). These require Basic Canvas Views",
+      "path": "Samples~/Additional Canvas Views"
+    }
   ]
 }
