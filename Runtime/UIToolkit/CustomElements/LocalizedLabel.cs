@@ -3,7 +3,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
-namespace UI.Core.UIToolkit.CustomElements
+namespace UI.UIToolkit.CustomElements
 {
     [UxmlElement]
     public partial class LocalizedLabel : Label, ILocalizable

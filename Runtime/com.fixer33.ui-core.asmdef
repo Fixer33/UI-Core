@@ -1,6 +1,6 @@
 {
     "name": "com.fixer33.ui-core",
-    "rootNamespace": "UI.Core",
+    "rootNamespace": "UI",
     "references": [
         "com.fixer33.core",
         "Zenject",

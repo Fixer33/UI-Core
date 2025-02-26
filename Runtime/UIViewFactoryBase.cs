@@ -2,20 +2,20 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace UI.Core
+namespace UI
 {
     public abstract class UIViewFactoryBase : ScriptableObject
     {
         [SerializeField] private GameObject[] _viewPrefabOverrides;
         
-        public GameObject[] CreateScreenPrefabArray(GameObject[] basePrefabs)
+        public GameObject[] CreateViewPrefabArray(GameObject[] basePrefabs)
         {
             GameObject[] result = new GameObject[basePrefabs.Length];
-            var viewScreenTypes = _viewPrefabOverrides.Select(i => i.GetComponent<IView>().GetType()).ToArray();
+            var viewTypes = _viewPrefabOverrides.Select(i => i.GetComponent<IView>().GetType()).ToArray();
             for (var i = 0; i < basePrefabs.Length; i++)
             {
                 int overrideIndex =
-                    Array.IndexOf(viewScreenTypes, basePrefabs[i].GetComponent<IView>().GetType());
+                    Array.IndexOf(viewTypes, basePrefabs[i].GetComponent<IView>().GetType());
 
                 if (overrideIndex < 0)
                 {

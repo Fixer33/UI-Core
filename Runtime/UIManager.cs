@@ -9,7 +9,7 @@ using System.Text;
 using Core.Utilities;
 using UnityEngine;
 
-namespace UI.Core
+namespace UI
 {
     public enum VisibilityChangeType
     {
@@ -29,11 +29,11 @@ namespace UI.Core
     
     public class UIManager : SingletonBehaviour<UIManager>
     {
-        public IView PreviousMainScreen { get; private set; }
-        private static Type _startScreenType;
+        public IView PreviousMainView { get; private set; }
+        private static Type _startViewType;
 
-        private readonly Dictionary<Type, IView> _singleScreenDict = new();
-        private readonly Dictionary<Type, Dictionary<int, IView>> _multipleScreenDict = new();
+        private readonly Dictionary<Type, IView> _singleViewDict = new();
+        private readonly Dictionary<Type, Dictionary<int, IView>> _multipleViewDict = new();
         private readonly Dictionary<UILayer, IView> _activeLayers = new();
         private bool _canBeShown = true;
         
@@ -46,128 +46,128 @@ namespace UI.Core
             {
                 _activeLayers.Add(layer, null);
             }
-            PreviousMainScreen = null;
+            PreviousMainView = null;
         }
 
         private void Start()
         {
-            foreach (var screen in GetComponentsInChildren<IView>())
+            foreach (var view in GetComponentsInChildren<IView>())
             {
-                if (screen.GetType() != _startScreenType)
-                    screen.HideInstant();
+                if (view.GetType() != _startViewType)
+                    view.HideInstant();
                 else
-                    screen.ShowInstant();
+                    view.ShowInstant();
 
-                RegisterScreenView(screen);
+                RegisterView(view);
             }
 
-            _activeLayers[UILayer.Main] = GetScreen(_startScreenType);
+            _activeLayers[UILayer.Main] = GetView(_startViewType);
         }
 
-        public void RegisterScreenView(IView screen)
+        public void RegisterView(IView view)
         {
-            var type = screen.GetType();
+            var type = view.GetType();
 
-            // Register screen if it allows multiple instances
+            // Register view if it allows multiple instances
             // ReSharper disable once SuspiciousTypeConversion.Global
-            if (screen is IMultipleViewInstance multipleScreenInstance)
+            if (view is IMultipleViewInstance multipleViewInstance)
             {
-                Dictionary<int, IView> screenTypeDict;
-                if (_multipleScreenDict.TryGetValue(type, out screenTypeDict) == false)
-                    _multipleScreenDict.Add(type, screenTypeDict = new Dictionary<int, IView>());
+                Dictionary<int, IView> viewTypeDict;
+                if (_multipleViewDict.TryGetValue(type, out viewTypeDict) == false)
+                    _multipleViewDict.Add(type, viewTypeDict = new Dictionary<int, IView>());
 
-                int screenId = multipleScreenInstance.GetMultipleScreenId();
-                if (screenTypeDict.TryAdd(screenId, screen) == false)
+                int viewId = multipleViewInstance.GetMultipleViewId();
+                if (viewTypeDict.TryAdd(viewId, view) == false)
                     Debug.LogError(
-                        $"Failed to register screen {screen.GameObject.name}({type.Name}) as multiple screen with id {screenId}!\n" +
-                        $"Instance with such id already exists: {screenTypeDict[screenId].GameObject.name}");
+                        $"Failed to register view {view.GameObject.name}({type.Name}) as multiple view with id {viewId}!\n" +
+                        $"Instance with such id already exists: {viewTypeDict[viewId].GameObject.name}");
 
-                _multipleScreenDict[type] = screenTypeDict;
+                _multipleViewDict[type] = viewTypeDict;
                 return;
             }
 
-            // Register screen as regular single instance
-            if (_singleScreenDict.TryAdd(type, screen) == false)
-                Debug.LogError($"Failed to register screen {screen.GameObject.name}({type.Name}) as regular!\n" +
-                               $"Instance with such id already exists: {_singleScreenDict[type].GameObject.name}");
+            // Register view as regular single instance
+            if (_singleViewDict.TryAdd(type, view) == false)
+                Debug.LogError($"Failed to register view {view.GameObject.name}({type.Name}) as regular!\n" +
+                               $"Instance with such id already exists: {_singleViewDict[type].GameObject.name}");
         }
 
-        public void UnRegisterScreen(IView screen)
+        public void UnRegisterView(IView view)
         {
-            var type = screen.GetType();
+            var type = view.GetType();
             // ReSharper disable once SuspiciousTypeConversion.Global
-            if (screen is IMultipleViewInstance multipleScreenInstance)
+            if (view is IMultipleViewInstance multipleViewInstance)
             {
-                int instanceId = multipleScreenInstance.GetMultipleScreenId();
-                if (_multipleScreenDict.TryGetValue(type, out var instanceDict) == false || instanceDict.ContainsKey(instanceId) == false)
+                int instanceId = multipleViewInstance.GetMultipleViewId();
+                if (_multipleViewDict.TryGetValue(type, out var instanceDict) == false || instanceDict.ContainsKey(instanceId) == false)
                 {
-                    Debug.LogError($"Failed to unregister screen {screen.GameObject.name}({type.Name}). No instances registered");
+                    Debug.LogError($"Failed to unregister view {view.GameObject.name}({type.Name}). No instances registered");
                     return;
                 }
 
                 instanceDict.Remove(instanceId);
-                _multipleScreenDict[type] = instanceDict;
+                _multipleViewDict[type] = instanceDict;
                 return;
             }
 
-            if (_singleScreenDict.ContainsKey(type) == false)
+            if (_singleViewDict.ContainsKey(type) == false)
             {
-                Debug.LogError($"Failed to unregister screen {screen.GameObject.name}({type.Name}). No instance registered");
+                Debug.LogError($"Failed to unregister view {view.GameObject.name}({type.Name}). No instance registered");
                 return;
             }
 
-            _singleScreenDict.Remove(type);
+            _singleViewDict.Remove(type);
         }
 
-        public T GetScreen<T>(int? multipleScreenInstanceId = null) where T : IView => (T)GetScreen(typeof(T), multipleScreenInstanceId);
+        public T GetView<T>(int? multipleViewInstanceId = null) where T : IView => (T)GetView(typeof(T), multipleViewInstanceId);
 
-        public IView GetScreen(Type screenType, int? multipleScreenInstanceId = null)
+        public IView GetView(Type viewType, int? multipleViewInstanceId = null)
         {
-            if (screenType.GetInterface(nameof(IMultipleViewInstance)) == null)
-                return _singleScreenDict.GetValueOrDefault(screenType);
+            if (viewType.GetInterface(nameof(IMultipleViewInstance)) == null)
+                return _singleViewDict.GetValueOrDefault(viewType);
 
-            if (multipleScreenInstanceId.HasValue == false)
+            if (multipleViewInstanceId.HasValue == false)
             {
-                Debug.LogError($"Failed to get screen of type {screenType.Name}! No screen id supplied!");
+                Debug.LogError($"Failed to get view of type {viewType.Name}! No view id supplied!");
                 return null;
             }
 
-            if (_multipleScreenDict.TryGetValue(screenType, out var instanceDict) == false)
+            if (_multipleViewDict.TryGetValue(viewType, out var instanceDict) == false)
                 return null;
                 
-            return instanceDict.GetValueOrDefault(multipleScreenInstanceId.Value);
+            return instanceDict.GetValueOrDefault(multipleViewInstanceId.Value);
         }
 
-        public async void ShowScreenAsync(Type screenType,
-            VisibilityChangeType activeScreenHideType = VisibilityChangeType.Regular,
-            VisibilityChangeType newScreenShowType = VisibilityChangeType.Regular,
-            Action activeScreenHidden = null,
-            Action newScreenShown = null,
+        public async void ShowViewAsync(Type viewType,
+            VisibilityChangeType activeViewHideType = VisibilityChangeType.Regular,
+            VisibilityChangeType newViewShowType = VisibilityChangeType.Regular,
+            Action activeViewHidden = null,
+            Action newViewShown = null,
             Action onError = null,
             UILayer layer = UILayer.Main,
             IViewData showData = null,
-            int? multipleScreenInstanceId = null
+            int? multipleViewInstanceId = null
         )
         {
-            void HideActiveScreen(IView activeScreen, Action callback)
+            void HideActiveView(IView activeView, Action callback)
             {
-                activeScreen.Hide(() =>
+                activeView.Hide(() =>
                 {
-                    activeScreenHidden?.Invoke();
+                    activeViewHidden?.Invoke();
                     callback?.Invoke();
                 });
             }
-            void ShowNewScreen(IView screen, Action callback)
+            void ShowNewView(IView view, Action callback)
             {
-                screen.Show(callback, data: showData);
+                view.Show(callback, data: showData);
             }
-            void OnLayerScreenVisibilityChange(object sender, ScreenViewVisibilityArgs screenViewVisibilityArgs)
+            void OnLayerViewVisibilityChange(object sender, ViewVisibilityArgs viewVisibilityArgs)
             {
-                if (screenViewVisibilityArgs.IsVisible)
+                if (viewVisibilityArgs.IsVisible)
                     return;
                 
-                if (sender is IView screenView)
-                    screenView.VisibilityChanged -= OnLayerScreenVisibilityChange;
+                if (sender is IView view)
+                    view.VisibilityChanged -= OnLayerViewVisibilityChange;
 
                 UILayer? layer = null;
                 foreach (var keyValuePair in _activeLayers)
@@ -185,12 +185,12 @@ namespace UI.Core
                 _activeLayers[layer.Value] = null;
             }
             
-            var screen = GetScreen(screenType, multipleScreenInstanceId);
-            if (screen == null)
+            var view = GetView(viewType, multipleViewInstanceId);
+            if (view == null)
             {
                 string multipleInstanceIdS =
-                    multipleScreenInstanceId.HasValue ? multipleScreenInstanceId.Value.ToString() : "null";
-                Debug.LogError($"Failed to show new screen! Screen of type {screenType.Name} is not registered!\n" +
+                    multipleViewInstanceId.HasValue ? multipleViewInstanceId.Value.ToString() : "null";
+                Debug.LogError($"Failed to show new view! View of type {viewType.Name} is not registered!\n" +
                                $"Supplied multipleInstanceId: {multipleInstanceIdS}");
                 onError?.Invoke();
                 return;
@@ -198,28 +198,28 @@ namespace UI.Core
             
             await WaitUntilCanBeShown();
 
-            screen.VisibilityChanged += OnLayerScreenVisibilityChange;
+            view.VisibilityChanged += OnLayerViewVisibilityChange;
             
             var activeOnLayer = _activeLayers.GetValueOrDefault(layer, null);
             _canBeShown = false;
-            if (activeOnLayer.IsAlive() == false) // In case if active screen was destroyed
+            if (activeOnLayer.IsAlive() == false) // In case if active view was destroyed
             {
                 if (layer == UILayer.Main)
-                    Debug.LogWarning("Active main screen has been destroyed before switching to a new one!");
-                if (newScreenShowType == VisibilityChangeType.Instant)
+                    Debug.LogWarning("Active main view has been destroyed before switching to a new one!");
+                if (newViewShowType == VisibilityChangeType.Instant)
                 {
-                    _activeLayers[layer] = screen;
-                    screen.ShowInstant(data: showData);
+                    _activeLayers[layer] = view;
+                    view.ShowInstant(data: showData);
                     _canBeShown = true;
-                    newScreenShown?.Invoke();
+                    newViewShown?.Invoke();
                     return;
                 }
                 
-                _activeLayers[layer] = screen;
-                ShowNewScreen(screen, () =>
+                _activeLayers[layer] = view;
+                ShowNewView(view, () =>
                 {
                     _canBeShown = true;
-                    newScreenShown?.Invoke();
+                    newViewShown?.Invoke();
                 });
                 return;
             }
@@ -234,8 +234,8 @@ namespace UI.Core
                 if (_activeLayers[layerToHide].IsVisible() == false)
                     return;
 
-                _activeLayers[layerToHide].VisibilityChanged -= OnLayerScreenVisibilityChange;
-                if (activeScreenHideType == VisibilityChangeType.Regular)
+                _activeLayers[layerToHide].VisibilityChanged -= OnLayerViewVisibilityChange;
+                if (activeViewHideType == VisibilityChangeType.Regular)
                     _activeLayers[layerToHide].Hide();
                 else
                     _activeLayers[layerToHide].HideInstant();
@@ -243,75 +243,75 @@ namespace UI.Core
                 _activeLayers[layerToHide] = null;
             }
             
-            activeOnLayer.VisibilityChanged -= OnLayerScreenVisibilityChange;
-            switch (activeScreenHideType, newScreenShowType)
+            activeOnLayer.VisibilityChanged -= OnLayerViewVisibilityChange;
+            switch (activeViewHideType: activeViewHideType, newViewShowType: newViewShowType)
             {
                 case (VisibilityChangeType.Regular, VisibilityChangeType.Regular):
-                    HideActiveScreen(activeOnLayer, () =>
+                    HideActiveView(activeOnLayer, () =>
                     {
                         if (layer == UILayer.Main)
-                            PreviousMainScreen = activeOnLayer;
-                        _activeLayers[layer] = screen;
-                        ShowNewScreen(screen, () =>
+                            PreviousMainView = activeOnLayer;
+                        _activeLayers[layer] = view;
+                        ShowNewView(view, () =>
                         {
                             _canBeShown = true;
-                            newScreenShown?.Invoke();
+                            newViewShown?.Invoke();
                         });
                     });
                     break;
                 case (VisibilityChangeType.Regular, VisibilityChangeType.Instant):
-                    HideActiveScreen(activeOnLayer, () =>
+                    HideActiveView(activeOnLayer, () =>
                     {
                         if (layer == UILayer.Main)
-                            PreviousMainScreen = activeOnLayer;
-                        _activeLayers[layer] = screen;
-                        screen.ShowInstant(data: showData);
+                            PreviousMainView = activeOnLayer;
+                        _activeLayers[layer] = view;
+                        view.ShowInstant(data: showData);
                         _canBeShown = true;
-                        newScreenShown?.Invoke();
+                        newViewShown?.Invoke();
                     });
                     break;
                 case (VisibilityChangeType.Instant, VisibilityChangeType.Regular):
                     if (layer == UILayer.Main)
-                        PreviousMainScreen = activeOnLayer;
+                        PreviousMainView = activeOnLayer;
                     activeOnLayer.HideInstant();
-                    _activeLayers[layer] = screen;
-                    ShowNewScreen(screen, () =>
+                    _activeLayers[layer] = view;
+                    ShowNewView(view, () =>
                     {
                         _canBeShown = true;
-                        newScreenShown?.Invoke();
+                        newViewShown?.Invoke();
                     });
                     break;
                 case (VisibilityChangeType.Instant, VisibilityChangeType.Instant):
                     if (layer == UILayer.Main)
-                        PreviousMainScreen = activeOnLayer;
+                        PreviousMainView = activeOnLayer;
                     activeOnLayer.HideInstant();
-                    _activeLayers[layer] = screen;
-                    screen.ShowInstant(data: showData);
+                    _activeLayers[layer] = view;
+                    view.ShowInstant(data: showData);
                     _canBeShown = true;
-                    newScreenShown?.Invoke();
+                    newViewShown?.Invoke();
                     break;
             }
         }
 
-        public void ShowScreenAsync<T>(
-            VisibilityChangeType activeScreenHideType = VisibilityChangeType.Regular,
-            VisibilityChangeType newScreenShowType = VisibilityChangeType.Regular,
-            Action activeScreenHidden = null,
-            Action newScreenShown = null,
+        public void ShowViewAsync<T>(
+            VisibilityChangeType activeViewHideType = VisibilityChangeType.Regular,
+            VisibilityChangeType newViewShowType = VisibilityChangeType.Regular,
+            Action activeViewHidden = null,
+            Action newViewShown = null,
             Action onError = null,
             UILayer layer = UILayer.Main,
             IViewData showData = null,
-            int? multipleScreenInstanceId = null
-        ) where T : IView => ShowScreenAsync(typeof(T), 
-            activeScreenHideType, newScreenShowType, activeScreenHidden, newScreenShown, onError, layer, showData, multipleScreenInstanceId);
+            int? multipleViewInstanceId = null
+        ) where T : IView => ShowViewAsync(typeof(T), 
+            activeViewHideType, newViewShowType, activeViewHidden, newViewShown, onError, layer, showData, multipleViewInstanceId);
 
-        public void ShowScreenAsPopupAsync<T>(
+        public void ShowViewAsPopupAsync<T>(
             Action onShown = null,
             Action onError = null,
             IViewData showData = null,
-            int? multipleScreenInstanceId = null
-        ) where T : IView => ShowScreenAsync<T>(newScreenShown: onShown, onError: onError, showData: showData, layer: UILayer.Popups,
-            multipleScreenInstanceId: multipleScreenInstanceId);
+            int? multipleViewInstanceId = null
+        ) where T : IView => ShowViewAsync<T>(newViewShown: onShown, onError: onError, showData: showData, layer: UILayer.Popups,
+            multipleViewInstanceId: multipleViewInstanceId);
         
         public async UnifiedTask WaitUntilCanBeShown()
         {
@@ -327,52 +327,52 @@ namespace UI.Core
             callback?.Invoke();
         }
 
-        public static UIManager Create(Type startScreenType, params GameObject[] screenPrefabs)
+        public static UIManager Create(Type startViewType, params GameObject[] viewPrefabs)
         {
             GameObject uiObj = new GameObject("UI");
-            _startScreenType = startScreenType;
+            _startViewType = startViewType;
             var result = uiObj.AddComponent<UIManager>();
             
-            foreach (var screenPrefab in screenPrefabs)
+            foreach (var viewPrefab in viewPrefabs)
             {
-                var spawnedScreen = Instantiate(screenPrefab, uiObj.transform);
+                var spawnedView = Instantiate(viewPrefab, uiObj.transform);
             }
 
             return result;
         }
         
 #if UNITY_EDITOR
-        [ContextMenu("Print all registered screens")]
-        private void EDITOR_PrintAllRegisteredScreens()
+        [ContextMenu("Print all registered views")]
+        private void EDITOR_PrintAllRegisteredViews()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("All registered screens:");
-            sb.AppendLine("=Single instance screens:");
-            foreach (var singleScreenRecord in _singleScreenDict)
+            sb.AppendLine("All registered views:");
+            sb.AppendLine("=Single instance views:");
+            foreach (var singleViewRecord in _singleViewDict)
             {
                 sb.Append("=== ");
-                sb.Append(singleScreenRecord.Value.GameObject.name);
+                sb.Append(singleViewRecord.Value.GameObject.name);
                 sb.Append("(");
-                sb.Append(singleScreenRecord.Key.Name);
+                sb.Append(singleViewRecord.Key.Name);
                 sb.Append("). Is in hierarchy: ");
-                sb.AppendLine(singleScreenRecord.Value.IsInHierarchy.ToString());
+                sb.AppendLine(singleViewRecord.Value.IsInHierarchy.ToString());
             }
 
-            sb.AppendLine("=Multiple instance screens:");
-            foreach (var multipleScreenRecord in _multipleScreenDict)
+            sb.AppendLine("=Multiple instance views:");
+            foreach (var multipleViewsRecord in _multipleViewDict)
             {
                 sb.Append("=== ");
-                sb.Append("Screens of type ");
-                sb.AppendLine(multipleScreenRecord.Key.Name);
+                sb.Append("Views of type ");
+                sb.AppendLine(multipleViewsRecord.Key.Name);
                 
-                foreach (var screenInstance in multipleScreenRecord.Value)
+                foreach (var viewInstance in multipleViewsRecord.Value)
                 {
                     sb.Append("+++++ ");
-                    sb.Append(screenInstance.Value.GameObject.name);
+                    sb.Append(viewInstance.Value.GameObject.name);
                     sb.Append(" with id: ");
-                    sb.Append(((IMultipleViewInstance)screenInstance.Value).GetMultipleScreenId().ToString());
+                    sb.Append(((IMultipleViewInstance)viewInstance.Value).GetMultipleViewId().ToString());
                     sb.Append(". Is in hierarchy: ");
-                    sb.AppendLine(screenInstance.Value.IsInHierarchy.ToString());
+                    sb.AppendLine(viewInstance.Value.IsInHierarchy.ToString());
                 }
             }
             

@@ -9,13 +9,13 @@ using Zenject;
 using UnityEngine.Localization;
 #endif
 
-namespace UI.Core.UIToolkit
+namespace UI.UIToolkit
 {
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]
     public abstract class UIToolkitView : MonoBehaviour, IView
     {
-        public event EventHandler<ScreenViewVisibilityArgs> VisibilityChanged;
+        public event EventHandler<ViewVisibilityArgs> VisibilityChanged;
 
         public UIManager UIManager
         {
@@ -67,7 +67,7 @@ namespace UI.Core.UIToolkit
                 return;
             
             HideInstant();
-            UIManager.RegisterScreenView(this);
+            UIManager.RegisterView(this);
             
             _fieldsToQuery ??= GetElementsToQuery();
             _platformSpecificFields ??= GetPlatformSpecificFields();
@@ -221,7 +221,7 @@ namespace UI.Core.UIToolkit
             gameObject.SetActive(true);
             OnShowStart();
             // OnShown();
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(true));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void Hide(Action onComplete = null)
@@ -233,20 +233,20 @@ namespace UI.Core.UIToolkit
             _onHide?.Invoke();
             _onHide = null;
             OnHidden();
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(false));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         public void ShowInstant(IViewData data = null)
         {
             ShowData = data;
             gameObject.SetActive(true);
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(true));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void HideInstant()
         {
             gameObject.SetActive(false);
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(false));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         protected virtual void ApplyAnimationStyles() {}

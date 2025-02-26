@@ -1,7 +1,7 @@
-namespace UI.Core
+namespace UI
 {
     public interface IMultipleViewInstance
     {
-        public int GetMultipleScreenId();
+        public int GetMultipleViewId();
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 using Zenject;
 
-namespace UI.Core
+namespace UI
 {
     [CreateAssetMenu(fileName = "UI Installer", menuName = "Installers/UI", order = 0)]
     public class UIInstaller : ScriptableObjectInstaller
@@ -20,17 +20,17 @@ namespace UI.Core
         {
             Container.Bind<StyleSheet>().FromInstance(_additionalUIStyle.Get());
 
-            GameObject[] screenPrefabs = _baseViewPrefabs;
+            GameObject[] viewPrefabs = _baseViewPrefabs;
             foreach (var viewFactoryBase in _viewFactories)
             {
                 if (viewFactoryBase.CanBeUsed() == false)
                     continue;
 
-                screenPrefabs = viewFactoryBase.CreateScreenPrefabArray(_baseViewPrefabs);
+                viewPrefabs = viewFactoryBase.CreateViewPrefabArray(_baseViewPrefabs);
                 break;
             }
             
-            var ui = UIManager.Create(_startViewType.Get(), screenPrefabs).gameObject;
+            var ui = UIManager.Create(_startViewType.Get(), viewPrefabs).gameObject;
             Instantiate(_eventSystemPrefab, ui.transform);
             Container.InjectGameObject(ui);
         }

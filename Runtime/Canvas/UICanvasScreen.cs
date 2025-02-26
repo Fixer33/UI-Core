@@ -3,12 +3,12 @@ using Core.Services.Ads;
 using Core.Utilities;
 using UnityEngine;
 
-namespace UI.Core.Canvas
+namespace UI.Canvas
 {
     [DefaultExecutionOrder(100)]
     public abstract class UICanvasView : MonoBehaviour, IView
     {
-        public event EventHandler<ScreenViewVisibilityArgs> VisibilityChanged;
+        public event EventHandler<ViewVisibilityArgs> VisibilityChanged;
 
         protected UIManager UIManager
         {
@@ -37,7 +37,7 @@ namespace UI.Core.Canvas
                 return;
             
             HideInstant();
-            UIManager.RegisterScreenView(this);
+            UIManager.RegisterView(this);
         }
 
         protected virtual void Start()
@@ -47,7 +47,7 @@ namespace UI.Core.Canvas
         protected virtual void OnDestroy()
         {
             if (UIManager && _isInHierarchy)
-                UIManager.UnRegisterScreen(this);
+                UIManager.UnRegisterView(this);
         }
         
         public virtual void Show(Action onComplete = null, Action onHide = null, IViewData data = null)
@@ -59,7 +59,7 @@ namespace UI.Core.Canvas
             {
                 onComplete?.Invoke();
                 OnShown();
-                VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(true));
+                VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
             });
         }
 
@@ -72,7 +72,7 @@ namespace UI.Core.Canvas
                 _onHide?.Invoke();
                 _onHide = null;
                 OnHidden();
-                VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(false));
+                VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
             });
         }
 
@@ -85,7 +85,7 @@ namespace UI.Core.Canvas
             OnShowStart();
             ShowInstantVisually();
             OnShown();
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(true));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void HideInstant()
@@ -93,7 +93,7 @@ namespace UI.Core.Canvas
             OnHideStart();
             HideInstantVisually();
             OnHidden();
-            VisibilityChanged?.Invoke(this, new ScreenViewVisibilityArgs(false));
+            VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         protected abstract void ShowInstantVisually();
@@ -115,17 +115,17 @@ namespace UI.Core.Canvas
         {
         }
 
-        protected void BackToPreviousScreen()
+        protected void BackToPreviousView()
         {
             // TODO : Change it stack but create a way to clear latest stack element with most efficiency
-            if (UIManager.PreviousMainScreen.IsAlive())
-                UIManager.ShowScreenAsync(UIManager.PreviousMainScreen.GetType());
+            if (UIManager.PreviousMainView.IsAlive())
+                UIManager.ShowViewAsync(UIManager.PreviousMainView.GetType());
         }
         
         public abstract bool IsVisible();
     }
 
-    public abstract class UICanvasView<T> : UICanvasView where T : UIScreenParameters
+    public abstract class UICanvasView<T> : UICanvasView where T : UICanvasViewParameters
     {
         protected T Parameters => _parameters;
         
@@ -147,7 +147,7 @@ namespace UI.Core.Canvas
         protected sealed override void OnDestroy()
         {
             base.OnDestroy();
-            OnDestroyScreen();
+            OnDestroyView();
         }
 
         protected sealed override void Start()
@@ -171,11 +171,11 @@ namespace UI.Core.Canvas
         protected virtual void OnAwakeEarly(){}
         protected virtual void OnAwakeLate(){}
         protected virtual void OnStart(){}
-        protected virtual void OnDestroyScreen(){}
+        protected virtual void OnDestroyView(){}
     }
 
     [Serializable]
-    public abstract class UIScreenParameters
+    public abstract class UICanvasViewParameters
     {
         [field: SerializeField] public PlatformSpecification CallAdOnShowStart { get; private set; } = PlatformSpecification.None;
 

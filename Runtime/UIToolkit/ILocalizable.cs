@@ -1,7 +1,7 @@
 #if USE_LOCALIZATION_PACKAGE
 using UnityEngine.Localization;
 
-namespace UI.Core.UIToolkit
+namespace UI.UIToolkit
 {
     public interface ILocalizable
     {

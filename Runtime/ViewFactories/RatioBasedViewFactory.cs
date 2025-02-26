@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UI.Core.ViewFactories
+namespace UI.ViewFactories
 {
     [CreateAssetMenu(fileName = "Ratio based factory", menuName = "Factory/View/Ratio based", order = 0)]
     public class RatioBasedViewFactory : UIViewFactoryBase

@@ -1,6 +1,6 @@
 {
     "name": "com.fixer33.ui-core.Editor",
-    "rootNamespace": "UI.Core.Editor",
+    "rootNamespace": "UI.Editor",
     "references": [
         "com.fixer33.ui-core"
     ],
