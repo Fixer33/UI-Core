@@ -3,7 +3,7 @@
 ![Unity](https://img.shields.io/badge/Unity-UPM%20Package-blue)
 ![GitHub](https://img.shields.io/github/license/Fixer33/UI-Core)
 
-Item Combining is a Unity Editor tool that provides a structured way to manage combinations of `ScriptableObject` assets. It introduces the **CombinationDictionary**, a custom data structure used to store and retrieve valid combinations. The main feature of this package is its **Editor Window UI**, which allows for an intuitive way to edit and manage combinations.
+Provides abstractions and base classes for UI packages
 
 ## Installation
 
