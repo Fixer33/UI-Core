@@ -1,9 +1,12 @@
 {
   "name": "com.fixer33.ui-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "UI Core",
   "description": "Core package for UI elements",
   "unity": "6000.0",
+  "dependencies": {
+    "com.fixer33.core": "1.0.0"
+  },
   "author": {
     "name": "Fixer33",
     "email": "fsfixer33@gmail.com",
