@@ -3,8 +3,7 @@
     "rootNamespace": "UI",
     "references": [
         "com.fixer33.core",
-        "Zenject",
-        "Unity.Localization"
+        "Zenject"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -13,12 +12,5 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.localization",
-            "expression": "1.5.4",
-            "define": "USE_LOCALIZATION_PACKAGE"
-        }
-    ],
     "noEngineReferences": false
 }

@@ -1,3 +1,9 @@
+## [1.0.2] - 2025-03-07
+
+### Changed
+
+- Removed custom localized button and label because Unity already has binding for Localization package
+
 ## [1.0.1] - 2025-03-02
 
 ### Changed

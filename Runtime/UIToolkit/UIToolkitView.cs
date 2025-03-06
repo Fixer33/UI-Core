@@ -5,9 +5,6 @@ using Core.Utilities;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zenject;
-#if USE_LOCALIZATION_PACKAGE
-using UnityEngine.Localization;
-#endif
 
 namespace UI.UIToolkit
 {
@@ -91,14 +88,6 @@ namespace UI.UIToolkit
             
             QueryElements();
             HandlePlatformSpecificElements();
-
-#if USE_LOCALIZATION_PACKAGE
-            OnEnablePreLocalization();
-            foreach (var item in GetStaticLocalizations())
-            {
-                item.Localizable.InitLocalization(item.Localization);
-            }
-#endif
             
             OnEnableLocal();
             ApplyAnimationStyles();
@@ -258,22 +247,6 @@ namespace UI.UIToolkit
         protected virtual void OnEnableLocal(){}
         
         public bool IsVisible() => gameObject.activeSelf;
-
-#if USE_LOCALIZATION_PACKAGE
-        protected virtual void OnEnablePreLocalization(){}
-        protected abstract LocalizationPair[] GetStaticLocalizations();
-        protected struct LocalizationPair
-        {
-            public ILocalizable Localizable;
-            public LocalizedString Localization;
-
-            public LocalizationPair(ILocalizable localizable, LocalizedString localization)
-            {
-                Localizable = localizable;
-                Localization = localization;
-            }
-        }
-#endif
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
