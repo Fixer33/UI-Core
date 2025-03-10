@@ -20,7 +20,7 @@ namespace UI.Canvas
                 return _uiManager;
             }
         }
-        protected IViewData ShowData { get; private set; }
+        protected IViewData ViewData { get; private set; }
         public bool IsInHierarchy => _isInHierarchy;
         public GameObject GameObject => gameObject;
         bool IView.IsObjectAlive => this;
@@ -52,7 +52,7 @@ namespace UI.Canvas
         
         public virtual void Show(Action onComplete = null, Action onHide = null, IViewData data = null)
         {
-            ShowData = data;
+            ViewData = data;
             OnShowStart();
             _onHide = onHide;
             ShowVisually(() =>
@@ -81,7 +81,7 @@ namespace UI.Canvas
 
         public virtual void ShowInstant(IViewData data = null)
         {
-            ShowData = data;
+            ViewData = data;
             OnShowStart();
             ShowInstantVisually();
             OnShown();
@@ -120,6 +120,14 @@ namespace UI.Canvas
             // TODO : Change it stack but create a way to clear latest stack element with most efficiency
             if (UIManager.PreviousMainView.IsAlive())
                 UIManager.ShowViewAsync(UIManager.PreviousMainView.GetType());
+        }
+
+        protected T GetViewData<T>()
+        {
+            if (ViewData == null)
+                return default;
+
+            return ViewData.Get<T>();
         }
         
         public abstract bool IsVisible();

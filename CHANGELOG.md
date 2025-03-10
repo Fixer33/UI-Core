@@ -1,3 +1,9 @@
+## [1.0.0] - 2025-03-10
+
+### Fixed
+
+- Samples script folder for canvas scripts
+
 ## [1.0.2] - 2025-03-07
 
 ### Changed
