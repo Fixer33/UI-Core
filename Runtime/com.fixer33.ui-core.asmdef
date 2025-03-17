@@ -3,7 +3,8 @@
     "rootNamespace": "UI",
     "references": [
         "com.fixer33.core",
-        "Zenject"
+        "Zenject",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
