@@ -29,6 +29,7 @@ namespace UI.Canvas
         private UIManager _uiManager;
         private bool _isInHierarchy;
         private bool _isObjectAlive;
+        private object _viewDataCached;
 
         protected virtual void Awake()
         {
@@ -53,6 +54,8 @@ namespace UI.Canvas
         public virtual void Show(Action onComplete = null, Action onHide = null, IViewData data = null)
         {
             ViewData = data;
+            if (data != null)
+                _viewDataCached = data;
             OnShowStart();
             _onHide = onHide;
             ShowVisually(() =>
@@ -82,6 +85,8 @@ namespace UI.Canvas
         public virtual void ShowInstant(IViewData data = null)
         {
             ViewData = data;
+            if (data != null)
+                _viewDataCached = data;
             OnShowStart();
             ShowInstantVisually();
             OnShown();
@@ -122,12 +127,15 @@ namespace UI.Canvas
                 UIManager.ShowViewAsync(UIManager.PreviousMainView.GetType());
         }
 
-        protected T GetViewData<T>()
+        protected T GetViewData<T>(bool useCached = true)
         {
-            if (ViewData == null)
-                return default;
-
-            return ViewData.Get<T>();
+            if (ViewData != null) 
+                return ViewData.Get<T>();
+            
+            if (useCached && _viewDataCached is T dataCached)
+                return dataCached;
+            
+            return default;
         }
         
         public abstract bool IsVisible();
