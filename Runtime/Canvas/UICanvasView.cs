@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Core.Services.Ads;
 using Core.Utilities;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace UI.Canvas
 {
@@ -33,6 +36,14 @@ namespace UI.Canvas
 
         protected virtual void Awake()
         {
+            List<(Button button, UnityAction onClick)> buttonCallbacks = new();
+            AddButtonSubscriptions(buttonCallbacks);
+            foreach (var buttonCallbackRecord in buttonCallbacks)
+            {
+                if (buttonCallbackRecord.button)
+                    buttonCallbackRecord.button.onClick.AddListener(buttonCallbackRecord.onClick);
+            }
+            
             _isInHierarchy = GetComponentInParent<UIManager>();
             if (!UIManager || _isInHierarchy) 
                 return;
@@ -119,6 +130,8 @@ namespace UI.Canvas
         protected virtual void OnHidden()
         {
         }
+
+        protected virtual void AddButtonSubscriptions(List<(Button button, UnityAction onClick)> callbacks){}
 
         protected void BackToPreviousView()
         {
