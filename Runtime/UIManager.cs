@@ -29,6 +29,8 @@ namespace UI
     
     public class UIManager : SingletonBehaviour<UIManager>
     {
+        public event EventHandler<ViewVisibilityArgs> ViewVisibilityChanged;
+        
         public IView PreviousMainView { get; private set; }
         private static Type _startViewType;
 
@@ -68,6 +70,8 @@ namespace UI
         {
             var type = view.GetType();
 
+            view.VisibilityChanged += OnViewVisibilityChanged;
+
             // Register view if it allows multiple instances
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (view is IMultipleViewInstance multipleViewInstance)
@@ -95,6 +99,9 @@ namespace UI
         public void UnRegisterView(IView view)
         {
             var type = view.GetType();
+            
+            view.VisibilityChanged -= OnViewVisibilityChanged;
+            
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (view is IMultipleViewInstance multipleViewInstance)
             {
@@ -117,6 +124,11 @@ namespace UI
             }
 
             _singleViewDict.Remove(type);
+        }
+
+        private void OnViewVisibilityChanged(object sender, ViewVisibilityArgs viewVisibilityArgs)
+        {
+            ViewVisibilityChanged?.Invoke(sender, viewVisibilityArgs);
         }
 
         public T GetView<T>(int? multipleViewInstanceId = null) where T : IView => (T)GetView(typeof(T), multipleViewInstanceId);
