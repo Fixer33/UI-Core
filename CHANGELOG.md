@@ -1,3 +1,13 @@
+## [1.1.0] - 2025-10-06
+
+### Added
+
+- Selectable element logic
+
+### Changed
+
+- Loading screen sample updated
+
 ## [1.0.0] - 2025-03-10
 
 ### Fixed

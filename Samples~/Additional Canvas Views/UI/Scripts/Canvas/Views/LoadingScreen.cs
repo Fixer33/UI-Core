@@ -1,101 +1,110 @@
 ﻿using System;
-using Core.Services.Purchasing;
-using UI.Canvas.ViewBases;
+using Cysharp.Threading.Tasks;
+using TMPro;
+using UI.Canvas;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
-namespace UI.Canvas.Views
+namespace UI.Views
 {
-    public class LoadingScreen : FadingView
+    [Serializable]
+    public class LoadingScreenParams : UICanvasViewParameters
     {
-        public static ExpectedResult ExpectedScreen = ExpectedResult.None;
-
-        [SerializeField, Range(0f, 1)] private float _fakeLoadTarget = 0.8f;
-        [SerializeField] private float _fakeLoadSpeed = 1, _trueLoadSpeed = 1;
+        [field: SerializeField, Range(0f, 1)] public float FakeLoadTarget { get; private set; } = 0.8f;
+        [field: SerializeField] public float FakeLoadSpeed {get; private set; } = 1;
+        [field: SerializeField] public float TrueLoadSpeed {get; private set; } = 1;
+    }
+    
+    public class LoadingScreen : UICanvasView<LoadingScreenParams>
+    {
         [SerializeField] private Slider _loadingBar;
-        private IView _nextScreen;
-        private bool _isReady = false;
+        [Header("Background switching")]
+        [SerializeField] private float _bgChangeTime = 3;
+        [SerializeField] private Sprite[] _bgs;
+        [SerializeField] private Image _bgHolder;
+        [Header("Hint switching")]
+        [SerializeField] private float _hintChangeTime = 2;
+        [SerializeField] private GameObject[] _hintObjects;
+        [Header("Header animation")]
+        [SerializeField] private float _dotChangeTime = 1;
+        [SerializeField] private LocalizedString _headerLoc;
+        [SerializeField] private TMP_Text _headerText;
+        private float _dotChangeTimer;
+        private int _dotCount;
+        private float _hintChangeTimer;
+        private int _activeHint = -1;
+        private float _bgChangeTimer;
+        private int _activeBg = -1;
 
-        protected override void OnAwakeLate()
+        public override bool IsVisible() => gameObject.activeSelf;
+
+        protected override void ShowVisually(Action onComplete = null)
         {
-            SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
-            IAP.ExecuteOnInit(() => _isReady = true);
+            gameObject.SetActive(true);
+            onComplete?.Invoke();
         }
 
-        protected override void OnDestroyView()
+        protected override async void HideVisually(Action onComplete = null)
         {
-            SceneManager.sceneLoaded -= SceneManagerOnSceneLoaded;
+            while (_loadingBar.value < 0.9f)
+            {
+                _loadingBar.value = Mathf.Clamp(_loadingBar.value + Parameters.TrueLoadSpeed * Time.deltaTime, 0, 1);
+                await UniTask.DelayFrame(1);
+            }
+            gameObject.SetActive(false);
+            onComplete?.Invoke();
         }
 
-        protected override void OnStart()
+        protected override void ShowInstantVisually()
         {
-            ExpectedScreen = ExpectedResult.LoadingScreen;
+            gameObject.SetActive(true);
         }
-        
+
+        protected override void HideInstantVisually()
+        {
+            gameObject.SetActive(false);
+        }
+
         protected override void OnShowStart()
         {
             base.OnShowStart();
-            ExpectedScreen = ExpectedResult.LoadingScreen;
             _loadingBar.value = 0;
-        }
 
-        protected override void OnHideStart()
-        {
-            base.OnHideStart();
-            ExpectedScreen = ExpectedResult.None;
+            _dotChangeTimer = 0;
+            _dotCount = 0;
         }
 
         private void Update()
         {
-            if (ExpectedScreen is ExpectedResult.MainMenu or ExpectedResult.GameplayUI && _isReady)
+            _loadingBar.value = Mathf.Lerp(_loadingBar.value, Parameters.FakeLoadTarget, Parameters.FakeLoadSpeed * Time.deltaTime);
+
+            _dotChangeTimer -= Time.deltaTime;
+            if (_dotChangeTimer <= 0)
             {
-                _loadingBar.value = Mathf.Clamp(_loadingBar.value + _trueLoadSpeed * Time.deltaTime, 0, 1);
+                _dotCount = ++_dotCount % 4;
+                _headerText.text = _headerLoc.GetLocalizedString() + new string('.', _dotCount);
+                _dotChangeTimer = _dotChangeTime;
             }
-            else if (ExpectedScreen == ExpectedResult.LoadingScreen || _isReady == false)
+
+            _hintChangeTimer -= Time.deltaTime;
+            if (_hintChangeTimer <= 0)
             {
-                _loadingBar.value = Mathf.Lerp(_loadingBar.value, _fakeLoadTarget, _fakeLoadSpeed * Time.deltaTime);
+                _hintChangeTimer = _hintChangeTime;
+                _activeHint = ++_activeHint % _hintObjects.Length;
+                for (var i = 0; i < _hintObjects.Length; i++)
+                {
+                    _hintObjects[i].SetActive(i == _activeHint);
+                }
             }
             
-            #warning Edit desired screens to show
-            switch (ExpectedScreen)
+            _bgChangeTimer -= Time.deltaTime;
+            if (_bgChangeTimer <= 0)
             {
-                case ExpectedResult.MainMenu:
-                    if (_loadingBar.value >= 1)
-                    {
-                        // UIManager.ShowScreenInstant(UIManager.Context.MainMenu);
-                        ExpectedScreen = ExpectedResult.None;
-                    }
-                    break;
-                case ExpectedResult.GameplayUI:
-                    if (_loadingBar.value >= 1)
-                    {
-                        // UIManager.ShowScreenInstant(UIManager.Context.GameplayUI);
-                        ExpectedScreen = ExpectedResult.None;
-                    }
-                    break;
+                _bgChangeTimer = _bgChangeTime;
+                _activeBg = ++_activeBg % _bgs.Length;
+                _bgHolder.sprite = _bgs[_activeBg];
             }
-        }
-        
-        private void SceneManagerOnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (scene.buildIndex == 1)
-            {
-                ExpectedScreen = ExpectedResult.MainMenu;
-            }
-            else if (scene.buildIndex > 1)
-            {
-                ExpectedScreen = ExpectedResult.GameplayUI;
-            }
-        }
-
-        [Serializable]
-        public enum ExpectedResult
-        {
-            None = 0,
-            LoadingScreen = 1,
-            MainMenu = 2,
-            GameplayUI = 3,
         }
     }
 }

@@ -4,6 +4,7 @@
     "references": [
         "com.fixer33.core",
         "Zenject",
+        "Unity.TextMeshPro",
         "UniTask"
     ],
     "includePlatforms": [],
@@ -13,5 +14,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
+    "versionDefines": [],
     "noEngineReferences": false
 }
