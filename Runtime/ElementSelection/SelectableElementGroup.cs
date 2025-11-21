@@ -93,5 +93,13 @@ namespace UI.ElementSelection
             _activeSelectedElement = null;
             ElementSelected?.Invoke(null);
         }
+
+        public void UpdateElements()
+        {
+            foreach (var element in GetComponentsInChildren<SelectableElement>(true))
+            {
+                RegisterElement(element);
+            }
+        }
     }
 }
