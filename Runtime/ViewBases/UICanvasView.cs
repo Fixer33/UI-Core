@@ -13,6 +13,11 @@ namespace UI.Canvas
     {
         public event EventHandler<ViewVisibilityArgs> VisibilityChanged;
 
+        public event Action ShowStart;
+        public event Action Shown;
+        public event Action HideStart;
+        public event Action Hidden;
+
         protected UIManager UIManager
         {
             get
@@ -68,11 +73,13 @@ namespace UI.Canvas
             if (data != null)
                 _viewDataCached = data;
             OnShowStart();
+            ShowStart?.Invoke();
             _onHide = onHide;
             ShowVisually(() =>
             {
                 onComplete?.Invoke();
                 OnShown();
+                Shown?.Invoke();
                 VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
             });
         }
@@ -80,12 +87,14 @@ namespace UI.Canvas
         public void Hide(Action onComplete = null)
         {
             OnHideStart();
+            HideStart?.Invoke();
             HideVisually(() =>
             {
                 onComplete?.Invoke();
                 _onHide?.Invoke();
                 _onHide = null;
                 OnHidden();
+                Hidden?.Invoke();
                 VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
             });
         }
@@ -163,6 +172,12 @@ namespace UI.Canvas
         
         protected sealed override void Awake()
         {
+            VisibilityChanged += (sender, args) => Parameters.InvokeUnityEvent(Parameters.UnityEvents.OnVisibilityChanged, args.IsVisible);
+            Shown += () => Parameters.InvokeUnityEvent(Parameters.UnityEvents.OnShown);
+            Hidden += () => Parameters.InvokeUnityEvent(Parameters.UnityEvents.OnHidden);
+            ShowStart += () => Parameters.InvokeUnityEvent(Parameters.UnityEvents.OnShowStart);
+            HideStart += () => Parameters.InvokeUnityEvent(Parameters.UnityEvents.OnHideStart);
+            
             OnAwakeEarly();
             _showStartAdRequest = new AutomaticAdRequest(Parameters.CallAdOnShowStart);
             foreach (var behaviour in _parameters.EnableOnStart)
@@ -209,5 +224,34 @@ namespace UI.Canvas
         [field: SerializeField] public PlatformSpecification CallAdOnShowStart { get; private set; } = PlatformSpecification.None;
 
         [field: SerializeField] public Behaviour[] EnableOnStart { get; private set; } = Array.Empty<Behaviour>();
+        [field: SerializeField] public bool CallUnityEvents { get; private set; } = false;
+        [field: SerializeField] public UICanvasViewUnityEvents UnityEvents { get; private set; }
+        
+        internal void InvokeUnityEvent(UnityEvent unityEvent)
+        {
+            if (!CallUnityEvents) 
+                return;
+            
+            unityEvent?.Invoke();
+        }
+        
+        internal void InvokeUnityEvent(UnityEvent<bool> unityEvent, bool value)
+        {
+            if (!CallUnityEvents) 
+                return;
+            
+            unityEvent?.Invoke(value);
+        }
+    }
+
+    [Serializable]
+    public struct UICanvasViewUnityEvents
+    {
+        public UnityEvent OnShowStart;
+        public UnityEvent OnShown;
+        public UnityEvent OnHideStart;
+        public UnityEvent OnHidden;
+        
+        public UnityEvent<bool> OnVisibilityChanged;
     }
 }

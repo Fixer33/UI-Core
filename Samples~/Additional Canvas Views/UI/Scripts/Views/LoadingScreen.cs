@@ -49,7 +49,7 @@ namespace UI.Views
         {
             while (_loadingBar.value < 0.9f)
             {
-                _loadingBar.value = Mathf.Clamp(_loadingBar.value + Parameters.TrueLoadSpeed * Time.deltaTime, 0, 1);
+                _loadingBar.value = Mathf.Clamp(_loadingBar.value + Parameters.TrueLoadSpeed * Time.unscaledDeltaTime, 0, 1);
                 await UniTask.DelayFrame(1);
             }
             gameObject.SetActive(false);
@@ -77,9 +77,9 @@ namespace UI.Views
 
         private void Update()
         {
-            _loadingBar.value = Mathf.Lerp(_loadingBar.value, Parameters.FakeLoadTarget, Parameters.FakeLoadSpeed * Time.deltaTime);
+            _loadingBar.value = Mathf.Lerp(_loadingBar.value, Parameters.FakeLoadTarget, Parameters.FakeLoadSpeed * Time.unscaledDeltaTime);
 
-            _dotChangeTimer -= Time.deltaTime;
+            _dotChangeTimer -= Time.unscaledDeltaTime;
             if (_dotChangeTimer <= 0)
             {
                 _dotCount = ++_dotCount % 4;
@@ -87,7 +87,7 @@ namespace UI.Views
                 _dotChangeTimer = _dotChangeTime;
             }
 
-            _hintChangeTimer -= Time.deltaTime;
+            _hintChangeTimer -= Time.unscaledDeltaTime;
             if (_hintChangeTimer <= 0)
             {
                 _hintChangeTimer = _hintChangeTime;
@@ -98,7 +98,7 @@ namespace UI.Views
                 }
             }
             
-            _bgChangeTimer -= Time.deltaTime;
+            _bgChangeTimer -= Time.unscaledDeltaTime;
             if (_bgChangeTimer <= 0)
             {
                 _bgChangeTimer = _bgChangeTime;

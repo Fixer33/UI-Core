@@ -33,6 +33,7 @@ namespace UI
         
         public IView PreviousMainView { get; private set; }
         private static Type _startViewType;
+        public bool CanBeShown => _canBeShown;
 
         private readonly Dictionary<Type, IView> _singleViewDict = new();
         private readonly Dictionary<Type, Dictionary<int, IView>> _multipleViewDict = new();
