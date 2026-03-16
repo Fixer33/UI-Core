@@ -211,9 +211,14 @@ namespace UI
             
             await WaitUntilCanBeShown();
 
-            view.VisibilityChanged += OnLayerViewVisibilityChange;
-            
             var activeOnLayer = _activeLayers.GetValueOrDefault(layer, null);
+            if (view == activeOnLayer)
+            {
+                Debug.LogWarning($"View of type {viewType.Name} is already active on layer {layer}");
+                return;
+            }
+            
+            view.VisibilityChanged += OnLayerViewVisibilityChange;
             _canBeShown = false;
             if (activeOnLayer.IsAlive() == false) // In case if active view was destroyed
             {
