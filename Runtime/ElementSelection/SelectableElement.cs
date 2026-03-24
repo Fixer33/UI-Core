@@ -42,14 +42,11 @@ namespace UI.ElementSelection
         private ISelectableElementVisualModule[] _modules;
         private Behaviour _payloadScriptCache;
         private SelectableElementGroup _group;
+        private bool _isInitialized;
         
         private void Awake()
         {
-            _modules = GetComponentsInChildren<ISelectableElementVisualModule>();
-            foreach (var module in _modules)
-            {
-                module.OnInitialized();
-            }
+            InitializeIfNeeded();
             SetSelected(_isSelectedByDefault, true);
         }
 
@@ -66,8 +63,23 @@ namespace UI.ElementSelection
                 _group.DeRegisterElement(this);
         }
 
+        private void InitializeIfNeeded()
+        {
+            if (_isInitialized)
+                return;
+            
+            _modules = GetComponentsInChildren<ISelectableElementVisualModule>();
+            foreach (var module in _modules)
+            {
+                module.OnInitialized();
+            }
+            _isInitialized = true;
+        }
+
         private void SetSelected(bool isSelected, bool force)
         {
+            InitializeIfNeeded();
+            
             if (force == false && IsSelected == isSelected)
                 return;
 
@@ -113,6 +125,8 @@ namespace UI.ElementSelection
         public bool TryGetPayload<T>(out T payloadScript)
             where T : Behaviour
         {
+            InitializeIfNeeded();
+            
             if (_payloadScriptCache is T cachedPayload)
             {
                 payloadScript = cachedPayload;
@@ -142,6 +156,8 @@ namespace UI.ElementSelection
         public T GetPayload<T>()
             where T : Behaviour
         {
+            InitializeIfNeeded();
+            
             if (TryGetPayload(out T payload))
                 return payload;
 

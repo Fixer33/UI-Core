@@ -13,6 +13,8 @@ namespace UI.ElementSelection
 
         public SelectableElement ActiveSelectedElement => _activeSelectedElement;
 
+        public IReadOnlyList<SelectableElement> Elements => _elements;
+
         private readonly List<SelectableElement> _elements = new();
         private SelectableElement _activeSelectedElement;
 
