@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Core.Utilities;
+using UI.ViewExtensions;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zenject;
@@ -56,9 +57,11 @@ namespace UI.ViewBases
         private bool _isInitialized;
         private Action _onShown;
         private bool _isObjectAlive;
+        private IViewExtension[] _extensions;
 
         protected void Awake()
         {
+            _extensions = GetComponents<IViewExtension>();
             _isInHierarchy = GetComponentInParent<UIManager>();
             if (!UIManager || _isInHierarchy) 
                 return;
@@ -98,7 +101,7 @@ namespace UI.ViewBases
         {
             _onShown?.Invoke();
             _onShown = null;
-            OnShown();
+            NotifyShown();
         }
 
         private (FieldInfo field, string name)[] GetElementsToQuery()
@@ -207,38 +210,85 @@ namespace UI.ViewBases
             ShowData = data;
             _onHide = onHide;
             _onShown = onShown;
+            
+            NotifyShowStart();
+            
             gameObject.SetActive(true);
-            OnShowStart();
-            // OnShown();
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void Hide(Action onComplete = null)
         {
-            OnHideStart();
+            NotifyHideStart();
+            
             gameObject.SetActive(false);
-            onComplete?.Invoke();
             onComplete?.Invoke();
             _onHide?.Invoke();
             _onHide = null;
-            OnHidden();
+            
+            NotifyHidden();
+            
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         public void ShowInstant(IViewData data = null)
         {
             ShowData = data;
+            
+            NotifyShowStart();
+            
             gameObject.SetActive(true);
+            
+            NotifyShown();
+            
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void HideInstant()
         {
+            NotifyHideStart();
+            
             gameObject.SetActive(false);
+            
+            NotifyHidden();
+            
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         protected virtual void ApplyAnimationStyles() {}
+
+        private void NotifyShowStart()
+        {
+            OnShowStart();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.ShowStart();
+        }
+
+        private void NotifyShown()
+        {
+            OnShown();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.Shown();
+        }
+
+        private void NotifyHideStart()
+        {
+            OnHideStart();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.HideStart();
+        }
+
+        private void NotifyHidden()
+        {
+            OnHidden();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.Hidden();
+        }
+
         protected virtual void OnShowStart() {}
         protected virtual void OnShown() {}
         protected virtual void OnHideStart() {}

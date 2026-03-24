@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Services.Ads;
 using Core.Utilities;
+using UI.ViewExtensions;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -41,9 +42,11 @@ namespace UI.ViewBases
         private bool _isObjectAlive;
         private object _viewDataCached;
         private Canvas _canvas;
+        private IViewExtension[] _extensions;
 
         protected virtual void Awake()
         {
+            _extensions = GetComponents<IViewExtension>();
             List<(Button button, UnityAction onClick)> buttonCallbacks = new();
             AddButtonSubscriptions(buttonCallbacks);
             foreach (var buttonCallbackRecord in buttonCallbacks)
@@ -75,13 +78,17 @@ namespace UI.ViewBases
             ViewData = data;
             if (data != null)
                 _viewDataCached = data;
-            OnShowStart();
+            
+            NotifyShowStart();
             ShowStart?.Invoke();
+            
             _onHide = onHide;
             ShowVisually(() =>
             {
                 onComplete?.Invoke();
-                OnShown();
+                
+                NotifyShown();
+                
                 Shown?.Invoke();
                 VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
             });
@@ -89,14 +96,17 @@ namespace UI.ViewBases
 
         public void Hide(Action onComplete = null)
         {
-            OnHideStart();
+            NotifyHideStart();
+            
             HideStart?.Invoke();
             HideVisually(() =>
             {
                 onComplete?.Invoke();
                 _onHide?.Invoke();
                 _onHide = null;
-                OnHidden();
+                
+                NotifyHidden();
+                
                 Hidden?.Invoke();
                 VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
             });
@@ -110,38 +120,62 @@ namespace UI.ViewBases
             ViewData = data;
             if (data != null)
                 _viewDataCached = data;
-            OnShowStart();
+            
+            NotifyShowStart();
             ShowInstantVisually();
-            OnShown();
+            NotifyShown();
+            
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(true));
         }
 
         public void HideInstant()
         {
-            OnHideStart();
+            NotifyHideStart();
             HideInstantVisually();
-            OnHidden();
+            NotifyHidden();
+            
             VisibilityChanged?.Invoke(this, new ViewVisibilityArgs(false));
         }
 
         protected abstract void ShowInstantVisually();
         protected abstract void HideInstantVisually();
 
-        protected virtual void OnShowStart()
+        private void NotifyShowStart()
         {
+            OnShowStart();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.ShowStart();
         }
 
-        protected virtual void OnShown()
+        private void NotifyShown()
         {
+            OnShown();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.Shown();
         }
 
-        protected virtual void OnHideStart()
+        private void NotifyHideStart()
         {
+            OnHideStart();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.HideStart();
         }
 
-        protected virtual void OnHidden()
+        private void NotifyHidden()
         {
+            OnHidden();
+            if (_extensions == null) return;
+            foreach (var extension in _extensions)
+                extension.Hidden();
         }
+
+        protected virtual void OnShowStart() {}
+        protected virtual void OnShown() {}
+        protected virtual void OnHideStart() {}
+        protected virtual void OnHidden() {}
 
         protected virtual void AddButtonSubscriptions(List<(Button button, UnityAction onClick)> callbacks){}
 
