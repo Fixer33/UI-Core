@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace UI.ViewFactories
+namespace UI.ViewCollectionOverrides
 {
-    [CreateAssetMenu(fileName = "Ratio based factory", menuName = "Factory/View/Ratio based", order = 0)]
-    public class RatioBasedViewFactory : UIViewFactoryBase
+    [CreateAssetMenu(fileName = "Ratio override", menuName = "UI/View collection overrides/Screen ratio", order = 0)]
+    public class ScreenRatioViewCollectionOverride : UIViewCollectionOverrideBase
     {
         [SerializeField] private float _minScreenRatio, _maxScreenRatio;
         

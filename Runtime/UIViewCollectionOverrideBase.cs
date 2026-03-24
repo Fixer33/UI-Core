@@ -1,10 +1,9 @@
-using System;
 using System.Linq;
 using UnityEngine;
 
 namespace UI
 {
-    public abstract class UIViewFactoryBase : ScriptableObject
+    public abstract class UIViewCollectionOverrideBase : ScriptableObject
     {
         [SerializeField] private GameObject[] _viewPrefabOverrides;
         

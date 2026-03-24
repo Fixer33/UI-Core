@@ -13,7 +13,7 @@ namespace UI
         [SerializeField] private EventSystem _eventSystemPrefab;
         [SerializeField] private TypeReference<IView> _startViewType;
         [SerializeField] private GameObject[] _baseViewPrefabs = Array.Empty<GameObject>();
-        [SerializeField] private UIViewFactoryBase[] _viewFactories = Array.Empty<UIViewFactoryBase>();
+        [SerializeField] private UIViewCollectionOverrideBase[] _viewCollectionOverrides = Array.Empty<UIViewCollectionOverrideBase>();
         [SerializeField] private PlatformDependentReference<StyleSheet> _additionalUIStyle;
 
         public override void InstallBindings()
@@ -21,12 +21,12 @@ namespace UI
             Container.Bind<StyleSheet>().FromInstance(_additionalUIStyle.Get());
 
             GameObject[] viewPrefabs = _baseViewPrefabs;
-            foreach (var viewFactoryBase in _viewFactories)
+            foreach (var collectionOverride in _viewCollectionOverrides)
             {
-                if (viewFactoryBase.CanBeUsed() == false)
+                if (collectionOverride.CanBeUsed() == false)
                     continue;
 
-                viewPrefabs = viewFactoryBase.CreateViewPrefabArray(_baseViewPrefabs);
+                viewPrefabs = collectionOverride.CreateViewPrefabArray(_baseViewPrefabs);
                 break;
             }
             
