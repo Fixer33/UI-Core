@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UI.Canvas.ViewBases
+namespace UI.ViewBases
 {
     [Serializable]
     public class AnimatedCanvasViewParams : UICanvasViewParameters
@@ -32,7 +32,7 @@ namespace UI.Canvas.ViewBases
             _onComplete = onComplete;
             _isAnimating = true;
 
-            gameObject.SetActive(true);
+            SetActive(true);
             _animator.SetFloat(AnimatorSpeedId, Parameters.VisibilityAnimSpeedMultiplier);
             _animator.SetBool(AnimatorBoolId, true);
         }
@@ -48,7 +48,7 @@ namespace UI.Canvas.ViewBases
 
             _onComplete = () =>
             {
-                gameObject.SetActive(false);
+                SetActive(false);
                 onComplete?.Invoke();
             };
             _animator.SetBool(AnimatorBoolId, false);
@@ -57,7 +57,7 @@ namespace UI.Canvas.ViewBases
 
         protected override void ShowInstantVisually()
         {
-            gameObject.SetActive(true);
+            SetActive(true);
             _animator.SetBool(AnimatorBoolId, true);
             _animator.Play(AnimatorOpenStateName);
             _isVisible = true;
@@ -67,7 +67,7 @@ namespace UI.Canvas.ViewBases
         {
             _animator.SetBool(AnimatorBoolId, false);
             _isVisible = false;
-            gameObject.SetActive(false);
+            SetActive(false);
         }
 
         public override bool IsVisible()

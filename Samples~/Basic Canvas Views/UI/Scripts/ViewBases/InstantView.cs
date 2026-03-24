@@ -1,6 +1,6 @@
 using System;
 
-namespace UI.Canvas.ViewBases
+namespace UI.ViewBases
 {
     [Serializable]
     public class InstantCanvasViewParams : UICanvasViewParameters
@@ -23,17 +23,12 @@ namespace UI.Canvas.ViewBases
 
         protected override void ShowInstantVisually()
         {
-            gameObject.SetActive(true);
+            SetActive(true);
         }
 
         protected override void HideInstantVisually()
         {
-            gameObject.SetActive(false);
-        }
-
-        public override bool IsVisible()
-        {
-            return gameObject.activeSelf;
+            SetActive(false);
         }
     }
 }

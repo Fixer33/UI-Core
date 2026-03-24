@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Zenject;
 
-namespace UI.UIToolkit
+namespace UI.ViewBases
 {
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]

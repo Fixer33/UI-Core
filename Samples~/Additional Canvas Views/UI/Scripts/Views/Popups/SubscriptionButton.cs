@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;
 
-namespace UI.Canvas.Views.Popups
+namespace UI.Views.Popups
 {
     public class SubscriptionButton : MonoBehaviour
     {

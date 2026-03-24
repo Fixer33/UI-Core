@@ -1,7 +1,7 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using TMPro;
-using UI.Canvas;
+using UI.ViewBases;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;

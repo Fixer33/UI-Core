@@ -2,7 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 
-namespace UI.Canvas.ViewBases
+namespace UI.ViewBases
 {
     [Serializable]
     public class PanelScaleCanvasViewParams : UICanvasViewParameters
@@ -20,7 +20,7 @@ namespace UI.Canvas.ViewBases
         protected override void ShowVisually(Action onComplete = null)
         {
             _animation?.Kill();
-            gameObject.SetActive(true);
+            SetActive(true);
             
             _animation = DOTween.Sequence().SetUpdate(true);
             foreach (var panel in Parameters.Panels)
@@ -54,7 +54,7 @@ namespace UI.Canvas.ViewBases
             {
                 _animation = null;
                 onComplete?.Invoke();
-                gameObject.SetActive(false);
+                SetActive(false);
             });
         }
 
@@ -67,16 +67,16 @@ namespace UI.Canvas.ViewBases
                 panel.DOScaleX(1, 0).SetUpdate(true);
                 panel.DOScaleY(1, 0).SetUpdate(true);
             }
-            gameObject.SetActive(true);
+            SetActive(true);
         }
 
         protected override void HideInstantVisually()
         {
             _animation?.Kill();
             _animation = null;
-            gameObject.SetActive(false);
+            SetActive(false);
         }
 
-        public override bool IsVisible() => gameObject.activeSelf && _animation == null;
+        public override bool IsVisible() => base.IsVisible() && _animation == null;
     }
 }

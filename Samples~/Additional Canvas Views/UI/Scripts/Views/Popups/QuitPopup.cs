@@ -1,8 +1,8 @@
-﻿using UI.Canvas.ViewBases;
+﻿using UI.ViewBases;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.Canvas.Views.Popups
+namespace UI.Views.Popups
 {
     public class QuitPopup : FadingView
     {

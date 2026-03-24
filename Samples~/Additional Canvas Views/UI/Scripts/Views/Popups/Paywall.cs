@@ -3,14 +3,14 @@ using Core.Services.Ads;
 using Core.Services.Purchasing;
 using Core.Services.Purchasing.Products;
 using TMPro;
-using UI.Canvas.ViewBases;
+using UI.ViewBases;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;
 
-namespace UI.Canvas.Views.Popups
+namespace UI.Views.Popups
 {
-    public class Paywall : AnimatedView
+    public class Paywall : AnimatedView, IAdPaywall
     {
         [Header("Main settings")] 
         [SerializeField] private int _defaultSubBtn;
@@ -104,5 +104,7 @@ namespace UI.Canvas.Views.Popups
         {
             _defaultSubBtn = Mathf.Clamp(_defaultSubBtn, 0, _subBtns.Length);
         }
+
+        public PaywallType PaywallType => PaywallType.Default;
     }
 }

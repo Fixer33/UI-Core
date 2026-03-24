@@ -6,9 +6,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace UI.Canvas
+namespace UI.ViewBases
 {
     [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(Canvas))]
     public abstract class UICanvasView : MonoBehaviour, IView
     {
         public event EventHandler<ViewVisibilityArgs> VisibilityChanged;
@@ -28,6 +29,7 @@ namespace UI.Canvas
                 return _uiManager;
             }
         }
+        protected Canvas Canvas => _canvas ??= GetComponent<Canvas>();
         protected IViewData ViewData { get; private set; }
         public bool IsInHierarchy => _isInHierarchy;
         public GameObject GameObject => gameObject;
@@ -38,6 +40,7 @@ namespace UI.Canvas
         private bool _isInHierarchy;
         private bool _isObjectAlive;
         private object _viewDataCached;
+        private Canvas _canvas;
 
         protected virtual void Awake()
         {
@@ -159,8 +162,14 @@ namespace UI.Canvas
             
             return default;
         }
+
+        protected void SetActive(bool isActive)
+        {
+            Canvas.enabled = isActive;
+            gameObject.SetActive(isActive);
+        }
         
-        public abstract bool IsVisible();
+        public virtual bool IsVisible() => gameObject.activeSelf && Canvas.enabled;
     }
 
     public abstract class UICanvasView<T> : UICanvasView where T : UICanvasViewParameters
