@@ -69,7 +69,7 @@ namespace UI.ViewBases
 
         protected virtual void OnDestroy()
         {
-            if (UIManager && _isInHierarchy)
+            if (UIManager)
                 UIManager.UnRegisterView(this);
         }
         
