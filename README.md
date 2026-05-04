@@ -10,6 +10,7 @@ Foundational abstractions and base classes for building modular UI systems in Un
 - View lifecycle with events: `Show`, `Hide`, `ShowInstant`, `HideInstant`, and visibility notifications.
 - Canvas Views that properly toggle both `GameObject` and `Canvas.enabled` for accurate visibility.
 - View Extensions system: implement `IViewExtension` or inherit `ViewExtensionBase` to hook into view lifecycle.
+- Navigation Attributes: `ViewShowButtonAttribute` for automatic view navigation via UI Buttons.
 - Selectable Elements and groups with on-demand initialization to avoid unnecessary setup.
 - View Collection Overrides for platform and screen-ratio specific view selection.
 
@@ -38,6 +39,18 @@ public class AnalyticsViewExt : ViewExtensionBase<UICanvasView>
     protected override void OnShown() { }
     protected override void OnHideStart() { }
     protected override void OnHidden() { }
+}
+```
+
+### Navigation Attributes
+
+Use `ViewShowButtonAttribute` on a `Button` field in your `UICanvasView` to automatically subscribe it to show another view.
+
+```csharp
+public class MainMenuView : UICanvasView
+{
+    [SerializeField, ViewShowButton(typeof(SettingsView))] 
+    private Button _settingsButton;
 }
 ```
 

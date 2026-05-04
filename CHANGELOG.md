@@ -1,3 +1,8 @@
+## [1.3.0] - 2026-05-04
+
+### Added
+- `ViewShowButtonAttribute`: Allows declarative view navigation by marking `Button` fields in `UICanvasView`.
+
 ## [1.2.0] - 2026-03-24
 
 ### Added

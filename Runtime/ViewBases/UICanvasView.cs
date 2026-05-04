@@ -48,6 +48,7 @@ namespace UI.ViewBases
         {
             _extensions = GetComponents<IViewExtension>();
             List<(Button button, UnityAction onClick)> buttonCallbacks = new();
+            SubscribeAttributeButtons(buttonCallbacks);
             AddButtonSubscriptions(buttonCallbacks);
             foreach (var buttonCallbackRecord in buttonCallbacks)
             {
@@ -61,6 +62,39 @@ namespace UI.ViewBases
             
             HideInstant();
             UIManager.RegisterView(this);
+        }
+
+        private void SubscribeAttributeButtons(List<(Button button, UnityAction onClick)> callbacks)
+        {
+            var type = GetType();
+            var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+
+            foreach (var field in fields)
+            {
+                var attribute = Attribute.GetCustomAttribute(field, typeof(ViewShowButtonAttribute)) as ViewShowButtonAttribute;
+                if (attribute == null) continue;
+
+                if (field.FieldType != typeof(Button))
+                {
+                    Debug.LogError($"Field {field.Name} in {type.Name} has ViewShowButtonAttribute but is not a Button.");
+                    continue;
+                }
+
+                if (attribute.ViewType == null || !typeof(IView).IsAssignableFrom(attribute.ViewType))
+                {
+                    // Already logged in attribute constructor but checking again here for safety
+                    continue;
+                }
+
+                var button = field.GetValue(this) as Button;
+                if (button == null)
+                {
+                    Debug.LogWarning($"Button field {field.Name} in {type.Name} is null. ViewShowButtonAttribute will not work.");
+                    continue;
+                }
+
+                callbacks.Add((button, () => UIManager.ShowViewAsync(attribute.ViewType)));
+            }
         }
 
         protected virtual void Start()
@@ -225,7 +259,8 @@ namespace UI.ViewBases
             _showStartAdRequest = new AutomaticAdRequest(Parameters.CallAdOnShowStart);
             foreach (var behaviour in _parameters.EnableOnStart)
             {
-                behaviour.enabled = true;
+                if (behaviour)
+                    behaviour.enabled = true;
             }
             base.Awake();
             OnAwakeLate();
@@ -296,5 +331,27 @@ namespace UI.ViewBases
         public UnityEvent OnHidden;
         
         public UnityEvent<bool> OnVisibilityChanged;
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ViewShowButtonAttribute : Attribute
+    {
+        public Type ViewType { get; }
+
+        public ViewShowButtonAttribute(Type viewType)
+        {
+            if (viewType == null)
+            {
+                Debug.LogError("ViewType cannot be null in ViewShowButtonAttribute.");
+                return;
+            }
+
+            if (!typeof(IView).IsAssignableFrom(viewType))
+            {
+                Debug.LogError($"Type {viewType.Name} does not implement IView. ViewShowButtonAttribute requires a type that implements IView.");
+            }
+
+            ViewType = viewType;
+        }
     }
 }
