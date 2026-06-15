@@ -63,7 +63,8 @@ namespace UI.ElementSelection
             if (_group)
                 _group.RegisterElement(this);
 
-            IAP.PremiumPurchased += OnPremiumPurchased;
+            IAP.Initialized += OnIAPEvent;
+            IAP.PremiumPurchased += OnIAPEvent;
             UpdatePremiumState();
         }
 
@@ -72,10 +73,11 @@ namespace UI.ElementSelection
             if (_group)
                 _group.DeRegisterElement(this);
 
-            IAP.PremiumPurchased -= OnPremiumPurchased;
+            IAP.Initialized -= OnIAPEvent;
+            IAP.PremiumPurchased -= OnIAPEvent;
         }
 
-        private void OnPremiumPurchased()
+        private void OnIAPEvent()
         {
             UpdatePremiumState();
         }

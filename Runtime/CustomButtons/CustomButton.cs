@@ -24,17 +24,19 @@ namespace UI.CustomButtons
         protected override void OnEnable()
         {
             base.OnEnable();
-            IAP.PremiumPurchased += OnPremiumPurchased;
+            IAP.Initialized += OnIAPEvent;
+            IAP.PremiumPurchased += OnIAPEvent;
             UpdatePremiumState();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            IAP.PremiumPurchased -= OnPremiumPurchased;
+            IAP.Initialized -= OnIAPEvent;
+            IAP.PremiumPurchased -= OnIAPEvent;
         }
 
-        private void OnPremiumPurchased()
+        private void OnIAPEvent()
         {
             UpdatePremiumState();
         }
