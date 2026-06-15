@@ -81,6 +81,12 @@ namespace UI.CustomButtons
             if (!IsActive() || !IsInteractable())
                 return;
 
+            if (_isInPremiumState)
+            {
+                new AutomaticAdRequest(true).Invoke();
+                return;
+            }
+
             StartCoroutine(InvokeOnClickDelayed());
         }
 

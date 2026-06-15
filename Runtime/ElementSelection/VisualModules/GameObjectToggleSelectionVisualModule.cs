@@ -6,7 +6,8 @@ namespace UI.ElementSelection.VisualModules
     public class GameObjectToggleSelectionVisualModule : MonoBehaviour, ISelectableElementVisualModule
     {
         [SerializeField] private GameObject _gameObject;
-        [SerializeField] private bool _activateOnSelection = true;
+        [SerializeField] private SelectionModuleState<bool> _normalValue = new SelectionModuleState<bool> { Enabled = true, Value = false };
+        [SerializeField] private SelectionModuleState<bool> _selectedValue = new SelectionModuleState<bool> { Enabled = true, Value = true };
         [SerializeField] private SelectionModuleState<bool> _hoveredValue;
         [SerializeField] private SelectionModuleState<bool> _premiumValue;
 
@@ -44,7 +45,7 @@ namespace UI.ElementSelection.VisualModules
             }
             else
             {
-                targetActive = _activateOnSelection ? _isSelected : !_isSelected;
+                targetActive = _isSelected ? _selectedValue.GetValue(true) : _normalValue.GetValue(false);
                 
                 if (_isHovered && _hoveredValue.Enabled)
                 {

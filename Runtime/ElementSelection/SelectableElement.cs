@@ -123,6 +123,9 @@ namespace UI.ElementSelection
         private void SetSelected(bool isSelected, bool force)
         {
             InitializeIfNeeded();
+
+            if (force == false && _isInPremiumState)
+                return;
             
             if (force == false && IsSelected == isSelected)
                 return;
@@ -155,7 +158,7 @@ namespace UI.ElementSelection
 
             if (_isInPremiumState)
             {
-                StartCoroutine(InvokeClickedDelayed());
+                new AutomaticAdRequest(true).Invoke();
                 return;
             }
 

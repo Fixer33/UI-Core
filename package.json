@@ -1,6 +1,6 @@
 {
   "name": "com.fixer33.ui-core",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "displayName": "UI Core",
   "description": "Core package for UI elements",
   "unity": "6000.0",

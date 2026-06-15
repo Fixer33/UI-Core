@@ -116,8 +116,9 @@ namespace UI.Editor.ElementSelection
         protected override void DrawCustomInspector(VisualElement root)
         {
             root.Add(new PropertyField(serializedObject.FindProperty("_gameObject")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_activateOnSelection")));
             
+            CreateStateField(root, "_normalValue", "Normal Value");
+            CreateStateField(root, "_selectedValue", "Selected Value");
             CreateStateField(root, "_hoveredValue", "Hovered Value");
             CreateStateField(root, "_premiumValue", "Premium Value");
         }
