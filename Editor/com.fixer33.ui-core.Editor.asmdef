@@ -2,7 +2,8 @@
     "name": "com.fixer33.ui-core.Editor",
     "rootNamespace": "UI.Editor",
     "references": [
-        "com.fixer33.ui-core"
+        "com.fixer33.ui-core",
+        "UnityEditor.UI"
     ],
     "includePlatforms": [
         "Editor"
