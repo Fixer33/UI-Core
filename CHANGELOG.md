@@ -1,6 +1,11 @@
 ## [1.4.0]
 
 ### Added
+- Standalone animation system for visual components (DOTween independent).
+- `SelectableElement` now supports hover detection and animated visual modules.
+- New `StandaloneAnimatedVC` and `StandaloneAnimatedSVM` base classes for custom animations.
+- Configurable timescale dependence for animations.
+- UIToolkit-based custom editors for visual components and selection modules for improved UX.
 - Custom buttons
 
 ## [1.3.0] - 2026-05-04

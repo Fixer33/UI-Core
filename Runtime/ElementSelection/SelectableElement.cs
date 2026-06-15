@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -7,7 +8,7 @@ namespace UI.ElementSelection
 {
     [DefaultExecutionOrder(-101)]
     [AddComponentMenu("UI/Element Selection/Selectable Element")]
-    public class SelectableElement : MonoBehaviour, IPointerClickHandler
+    public class SelectableElement : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public event Action Clicked = delegate { };
         
@@ -15,6 +16,7 @@ namespace UI.ElementSelection
         public delegate void SelectionStateChangeDelegate(bool selected);
         
         public bool IsSelected { get; private set; }
+        public bool IsHovered { get; private set; }
 
         public bool Interactable
         {
@@ -103,8 +105,7 @@ namespace UI.ElementSelection
 
             if (Selectable == false)
             {
-                Clicked?.Invoke();
-                _events.OnPointerClick?.Invoke();
+                StartCoroutine(InvokeClickedDelayed());
                 return;
             }
             
@@ -113,13 +114,56 @@ namespace UI.ElementSelection
                 if (_unselectOnClick)
                     SetSelected(false);
                 
-                Clicked?.Invoke();
+                StartCoroutine(InvokeClickedDelayed());
                 return;
             }
             
             SetSelected(true);
+            StartCoroutine(InvokeClickedDelayed());
+        }
+
+        private IEnumerator InvokeClickedDelayed()
+        {
+            InitializeIfNeeded();
+            float maxDuration = 0;
+            foreach (var module in _modules)
+            {
+                if (module != null && module.IsElementAlive)
+                {
+                    maxDuration = Mathf.Max(maxDuration, module.GetAnimationDuration());
+                }
+            }
+
+            if (maxDuration > 0)
+            {
+                yield return new WaitForSecondsRealtime(maxDuration);
+            }
+
             Clicked?.Invoke();
             _events.OnPointerClick?.Invoke();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (Interactable == false)
+                return;
+
+            IsHovered = true;
+            foreach (var module in _modules)
+            {
+                if (module.IsElementAlive)
+                    module.OnHoverChanged(true);
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            IsHovered = false;
+            foreach (var module in _modules)
+            {
+                if (module.IsElementAlive)
+                    module.OnHoverChanged(false);
+            }
         }
 
         public bool TryGetPayload<T>(out T payloadScript)

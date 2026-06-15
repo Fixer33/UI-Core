@@ -4,27 +4,63 @@ using UnityEngine;
 namespace UI.ElementSelection.VisualModules
 {
     [AddComponentMenu("UI/Element Selection/Modules/Canvas Group SVM")]
-    public class CanvasGroupSelectionVisualModule : MonoBehaviour, ISelectableElementVisualModule
+    public class CanvasGroupSelectionVisualModule : StandaloneAnimatedSVM
     {
         [SerializeField] private CanvasGroupData _defaultState, _selectedState;
+        [SerializeField] private SelectionModuleState<CanvasGroupData> _hoveredState;
         [SerializeField] private CanvasGroup _group;
+
+        private float _startAlpha;
+        private float _targetAlpha;
+        private bool _isSelected;
+        private bool _isHovered;
 
         private void OnValidate()
         {
             _group ??= GetComponent<CanvasGroup>();
         }
 
-        private void Set(CanvasGroupData stateData)
+        private void UpdateState(bool instant)
         {
-            _group.alpha = stateData.Alpha;
-            _group.interactable = stateData.Interactable;
-            _group.blocksRaycasts = stateData.BlockRaycasts;
-            _group.ignoreParentGroups = stateData.IgnoreParentGroups;
+            if (_group == null) return;
+
+            CanvasGroupData targetState = _isSelected ? _selectedState : _defaultState;
+            if (_isHovered && _hoveredState.Enabled)
+            {
+                targetState = _hoveredState.Value;
+            }
+
+            _group.interactable = targetState.Interactable;
+            _group.blocksRaycasts = targetState.BlockRaycasts;
+            _group.ignoreParentGroups = targetState.IgnoreParentGroups;
+
+            _targetAlpha = targetState.Alpha;
+            _startAlpha = _group.alpha;
+
+            if (instant || !_animate || !Application.isPlaying)
+            {
+                StopAnimation();
+                _group.alpha = _targetAlpha;
+            }
+            else
+            {
+                StartAnimation(t =>
+                {
+                    _group.alpha = Mathf.Lerp(_startAlpha, _targetAlpha, t);
+                });
+            }
         }
 
-        public void OnSelectionChanged(bool isSelected)
+        public override void OnSelectionChanged(bool isSelected)
         {
-            Set(isSelected ? _selectedState : _defaultState);
+            _isSelected = isSelected;
+            UpdateState(false);
+        }
+
+        public override void OnHoverChanged(bool isHovered)
+        {
+            _isHovered = isHovered;
+            UpdateState(false);
         }
         
         [Serializable]
