@@ -74,6 +74,7 @@ namespace UI.Editor.ElementSelection
             root.Add(new PropertyField(serializedObject.FindProperty("_selectedColor")));
             
             CreateStateField(root, "_hoveredColor", "Hovered Color");
+            CreateStateField(root, "_premiumColor", "Premium Color");
 
             DrawAnimationSettings(root);
         }
@@ -89,6 +90,7 @@ namespace UI.Editor.ElementSelection
             root.Add(new PropertyField(serializedObject.FindProperty("_selectedState")));
             
             CreateStateField(root, "_hoveredState", "Hovered State");
+            CreateStateField(root, "_premiumState", "Premium State");
 
             DrawAnimationSettings(root);
         }
@@ -104,6 +106,7 @@ namespace UI.Editor.ElementSelection
             root.Add(new PropertyField(serializedObject.FindProperty("_selectedFont")));
             
             CreateStateField(root, "_hoveredFont", "Hovered Font");
+            CreateStateField(root, "_premiumFont", "Premium Font");
         }
     }
 
@@ -116,6 +119,7 @@ namespace UI.Editor.ElementSelection
             root.Add(new PropertyField(serializedObject.FindProperty("_activateOnSelection")));
             
             CreateStateField(root, "_hoveredValue", "Hovered Value");
+            CreateStateField(root, "_premiumValue", "Premium Value");
         }
     }
 }

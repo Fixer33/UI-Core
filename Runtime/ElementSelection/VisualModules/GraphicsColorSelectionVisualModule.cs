@@ -10,11 +10,13 @@ namespace UI.ElementSelection.VisualModules
         [SerializeField] private Graphic _graphic;
         [SerializeField] private Color _defaultColor = Color.white, _selectedColor = Color.white;
         [SerializeField] private SelectionModuleState<Color> _hoveredColor;
+        [SerializeField] private SelectionModuleState<Color> _premiumColor;
 
         private Color _startColor;
         private Color _targetColor;
         private bool _isSelected;
         private bool _isHovered;
+        private bool _isPremium;
         
         public override void OnSelectionChanged(bool isSelected)
         {
@@ -28,9 +30,21 @@ namespace UI.ElementSelection.VisualModules
             UpdateColor();
         }
 
+        public override void OnPremium()
+        {
+            _isPremium = true;
+            UpdateColor();
+        }
+
         private void UpdateColor()
         {
             if (_graphic == null) return;
+
+            if (_isPremium && _premiumColor.Enabled)
+            {
+                SetColor(_premiumColor.Value);
+                return;
+            }
 
             Color targetColor = _isSelected ? _selectedColor : _defaultColor;
             
@@ -39,6 +53,11 @@ namespace UI.ElementSelection.VisualModules
                 targetColor = _hoveredColor.Value;
             }
 
+            SetColor(targetColor);
+        }
+
+        private void SetColor(Color targetColor)
+        {
             _targetColor = targetColor;
             _startColor = _graphic.color;
 

@@ -12,12 +12,14 @@ namespace UI.CustomButtons
         [SerializeField] private CustomButtonState<TMP_FontAsset> _pressedFont;
         [SerializeField] private CustomButtonState<TMP_FontAsset> _selectedFont;
         [SerializeField] private CustomButtonState<TMP_FontAsset> _disabledFont;
+        [SerializeField] private CustomButtonState<TMP_FontAsset> _premiumFont;
 
         public void OnNormal() => SetFont(_normalFont);
         public void OnHighlighted() => SetFont(_highlightedFont.GetValue(_normalFont));
         public void OnPressed() => SetFont(_pressedFont.GetValue(_normalFont));
         public void OnSelected() => SetFont(_selectedFont.GetValue(_normalFont));
         public void OnDisabled() => SetFont(_disabledFont.GetValue(_normalFont));
+        public void OnPremium() => SetFont(_premiumFont.GetValue(_normalFont));
 
         private void SetFont(TMP_FontAsset font)
         {

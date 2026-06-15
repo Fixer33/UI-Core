@@ -7,6 +7,7 @@
 - Configurable timescale dependence for animations.
 - UIToolkit-based custom editors for visual components and selection modules for improved UX.
 - Custom buttons
+- Premium states for CustomButton and SelectableElement
 
 ## [1.3.0] - 2026-05-04
 

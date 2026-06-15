@@ -66,6 +66,7 @@ namespace UI.Editor.CustomButtons
             CreateStateField(root, "_pressedColor", "Pressed");
             CreateStateField(root, "_selectedColor", "Selected");
             CreateStateField(root, "_disabledColor", "Disabled");
+            CreateStateField(root, "_premiumColor", "Premium");
 
             var animHeader = new Label("Animation");
             animHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -90,6 +91,7 @@ namespace UI.Editor.CustomButtons
             CreateStateField(root, "_pressedValue", "Pressed");
             CreateStateField(root, "_selectedValue", "Selected");
             CreateStateField(root, "_disabledValue", "Disabled");
+            CreateStateField(root, "_premiumValue", "Premium");
         }
     }
 
@@ -105,6 +107,7 @@ namespace UI.Editor.CustomButtons
             CreateStateField(root, "_pressedAlpha", "Pressed");
             CreateStateField(root, "_selectedAlpha", "Selected");
             CreateStateField(root, "_disabledAlpha", "Disabled");
+            CreateStateField(root, "_premiumAlpha", "Premium");
 
             var animHeader = new Label("Animation");
             animHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -129,6 +132,7 @@ namespace UI.Editor.CustomButtons
             CreateStateField(root, "_pressedFont", "Pressed");
             CreateStateField(root, "_selectedFont", "Selected");
             CreateStateField(root, "_disabledFont", "Disabled");
+            CreateStateField(root, "_premiumFont", "Premium");
         }
     }
 }

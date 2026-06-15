@@ -8,10 +8,12 @@ namespace UI.ElementSelection.VisualModules
     {
         [SerializeField] private TMP_FontAsset _defaultFont, _selectedFont;
         [SerializeField] private SelectionModuleState<TMP_FontAsset> _hoveredFont;
+        [SerializeField] private SelectionModuleState<TMP_FontAsset> _premiumFont;
         [SerializeField] private TMP_Text _text;
 
         private bool _isSelected;
         private bool _isHovered;
+        private bool _isPremium;
 
         public void OnSelectionChanged(bool isSelected)
         {
@@ -25,14 +27,29 @@ namespace UI.ElementSelection.VisualModules
             UpdateFont();
         }
 
+        public void OnPremium()
+        {
+            _isPremium = true;
+            UpdateFont();
+        }
+
         private void UpdateFont()
         {
             if (_text == null) return;
 
-            TMP_FontAsset targetFont = _isSelected ? _selectedFont : _defaultFont;
-            if (_isHovered && _hoveredFont.Enabled)
+            TMP_FontAsset targetFont;
+
+            if (_isPremium && _premiumFont.Enabled)
             {
-                targetFont = _hoveredFont.Value;
+                targetFont = _premiumFont.Value;
+            }
+            else
+            {
+                targetFont = _isSelected ? _selectedFont : _defaultFont;
+                if (_isHovered && _hoveredFont.Enabled)
+                {
+                    targetFont = _hoveredFont.Value;
+                }
             }
 
             if (targetFont != null)

@@ -12,6 +12,7 @@ namespace UI.CustomButtons
         [SerializeField] private CustomButtonState<Color> _pressedColor;
         [SerializeField] private CustomButtonState<Color> _selectedColor;
         [SerializeField] private CustomButtonState<Color> _disabledColor;
+        [SerializeField] private CustomButtonState<Color> _premiumColor;
 
         private Color _startColor;
         private Color _targetColor;
@@ -21,6 +22,7 @@ namespace UI.CustomButtons
         public override void OnPressed() => SetColor(_pressedColor.GetValue(_normalColor));
         public override void OnSelected() => SetColor(_selectedColor.GetValue(_normalColor));
         public override void OnDisabled() => SetColor(_disabledColor.GetValue(_normalColor));
+        public override void OnPremium() => SetColor(_premiumColor.GetValue(_normalColor));
 
         private void SetColor(Color targetColor)
         {

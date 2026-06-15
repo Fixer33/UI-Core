@@ -18,6 +18,7 @@ namespace UI.CustomButtons
         public abstract void OnPressed();
         public abstract void OnSelected();
         public abstract void OnDisabled();
+        public abstract void OnPremium();
 
         public float GetAnimationDuration() => _animate ? _duration : 0;
 

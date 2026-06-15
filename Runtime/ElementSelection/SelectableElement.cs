@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using Core.Services.Ads;
+using Core.Services.Purchasing;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -17,6 +19,7 @@ namespace UI.ElementSelection
         
         public bool IsSelected { get; private set; }
         public bool IsHovered { get; private set; }
+        public bool IsPremiumState => _isInPremiumState;
 
         public bool Interactable
         {
@@ -37,6 +40,7 @@ namespace UI.ElementSelection
 
         [SerializeField] private bool _interactable = true;
         [SerializeField] private bool _selectable = true;
+        [SerializeField] private bool _isPremium;
         [Header("Settings")]
         [SerializeField] private bool _isSelectedByDefault;
         [SerializeField] private bool _unselectOnClick;
@@ -45,6 +49,7 @@ namespace UI.ElementSelection
         private Behaviour _payloadScriptCache;
         private SelectableElementGroup _group;
         private bool _isInitialized;
+        private bool _isInPremiumState;
         
         private void Awake()
         {
@@ -57,12 +62,49 @@ namespace UI.ElementSelection
             _group ??= GetComponentInParent<SelectableElementGroup>();
             if (_group)
                 _group.RegisterElement(this);
+
+            IAP.PremiumPurchased += OnPremiumPurchased;
+            UpdatePremiumState();
         }
 
         private void OnDisable()
         {
             if (_group)
                 _group.DeRegisterElement(this);
+
+            IAP.PremiumPurchased -= OnPremiumPurchased;
+        }
+
+        private void OnPremiumPurchased()
+        {
+            UpdatePremiumState();
+        }
+
+        private void UpdatePremiumState()
+        {
+            if (!_isPremium) return;
+
+            bool hasPremium = IAP.IsInitialized && IAP.IsPremiumPurchased();
+            _isInPremiumState = !hasPremium;
+
+            if (_isInPremiumState)
+            {
+                ApplyPremiumVisuals();
+            }
+            else
+            {
+                SetSelected(IsSelected, true);
+            }
+        }
+
+        private void ApplyPremiumVisuals()
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module.IsElementAlive)
+                    module.OnPremium();
+            }
         }
 
         private void InitializeIfNeeded()
@@ -86,11 +128,19 @@ namespace UI.ElementSelection
                 return;
 
             IsSelected = isSelected;
-            foreach (var module in _modules)
+
+            if (_isInPremiumState)
             {
-                if (module.IsElementAlive)
-                    module.OnSelectionChanged(isSelected);
-            };
+                ApplyPremiumVisuals();
+            }
+            else
+            {
+                foreach (var module in _modules)
+                {
+                    if (module.IsElementAlive)
+                        module.OnSelectionChanged(isSelected);
+                }
+            }
             
             SelectionStateChanged?.Invoke(isSelected);
             _events.OnSelectionChanged?.Invoke(isSelected);
@@ -102,6 +152,12 @@ namespace UI.ElementSelection
         {
             if (Interactable == false)
                 return;
+
+            if (_isInPremiumState)
+            {
+                StartCoroutine(InvokeClickedDelayed());
+                return;
+            }
 
             if (Selectable == false)
             {
@@ -124,6 +180,12 @@ namespace UI.ElementSelection
 
         private IEnumerator InvokeClickedDelayed()
         {
+            if (_isInPremiumState)
+            {
+                new AutomaticAdRequest(true).Invoke();
+                yield break;
+            }
+
             InitializeIfNeeded();
             float maxDuration = 0;
             foreach (var module in _modules)
@@ -149,6 +211,10 @@ namespace UI.ElementSelection
                 return;
 
             IsHovered = true;
+
+            if (_isInPremiumState)
+                return;
+
             foreach (var module in _modules)
             {
                 if (module.IsElementAlive)
@@ -159,6 +225,10 @@ namespace UI.ElementSelection
         public void OnPointerExit(PointerEventData eventData)
         {
             IsHovered = false;
+
+            if (_isInPremiumState)
+                return;
+
             foreach (var module in _modules)
             {
                 if (module.IsElementAlive)

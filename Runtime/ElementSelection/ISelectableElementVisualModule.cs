@@ -9,6 +9,7 @@ namespace UI.ElementSelection
         public void OnInitialized() {}
         public void OnSelectionChanged(bool isSelected);
         public void OnHoverChanged(bool isHovered) {}
+        public void OnPremium() {}
         public float GetAnimationDuration() => 0f;
     }
 }

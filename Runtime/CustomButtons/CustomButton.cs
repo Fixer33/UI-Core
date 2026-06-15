@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using Core.Services.Ads;
+using Core.Services.Purchasing;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,13 +9,61 @@ namespace UI.CustomButtons
 {
     public class CustomButton : Button
     {
+        [SerializeField] private bool _isPremium;
+        
         private ICustomButtonVisualComponent[] _visualComponents;
         private bool _isInitialized;
+        private bool _isInPremiumState;
 
         protected override void Awake()
         {
             base.Awake();
             InitializeIfNeeded();
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            IAP.PremiumPurchased += OnPremiumPurchased;
+            UpdatePremiumState();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            IAP.PremiumPurchased -= OnPremiumPurchased;
+        }
+
+        private void OnPremiumPurchased()
+        {
+            UpdatePremiumState();
+        }
+
+        private void UpdatePremiumState()
+        {
+            if (!_isPremium) return;
+            
+            bool hasPremium = IAP.IsInitialized && IAP.IsPremiumPurchased();
+            _isInPremiumState = !hasPremium;
+            
+            if (_isInPremiumState)
+            {
+                ApplyPremiumVisuals();
+            }
+            else
+            {
+                DoStateTransition(currentSelectionState, false);
+            }
+        }
+
+        private void ApplyPremiumVisuals()
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.OnPremium();
+            }
         }
 
         private void InitializeIfNeeded()
@@ -36,6 +86,12 @@ namespace UI.CustomButtons
 
         private IEnumerator InvokeOnClickDelayed()
         {
+            if (_isInPremiumState)
+            {
+                new AutomaticAdRequest(true).Invoke();
+                yield break;
+            }
+
             InitializeIfNeeded();
             float maxDuration = 0;
             foreach (var component in _visualComponents)
@@ -61,6 +117,12 @@ namespace UI.CustomButtons
             // base.DoStateTransition(state, instant); // We don't want base transition logic
             
             InitializeIfNeeded();
+
+            if (_isInPremiumState)
+            {
+                ApplyPremiumVisuals();
+                return;
+            }
             
             foreach (var component in _visualComponents)
             {
@@ -95,6 +157,7 @@ namespace UI.CustomButtons
         void OnPressed();
         void OnSelected();
         void OnDisabled();
+        void OnPremium();
     }
 
     public interface ICustomButtonAnimatedVisualComponent : ICustomButtonVisualComponent

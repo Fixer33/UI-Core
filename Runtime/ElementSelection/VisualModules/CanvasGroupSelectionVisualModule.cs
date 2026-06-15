@@ -8,12 +8,14 @@ namespace UI.ElementSelection.VisualModules
     {
         [SerializeField] private CanvasGroupData _defaultState, _selectedState;
         [SerializeField] private SelectionModuleState<CanvasGroupData> _hoveredState;
+        [SerializeField] private SelectionModuleState<CanvasGroupData> _premiumState;
         [SerializeField] private CanvasGroup _group;
 
         private float _startAlpha;
         private float _targetAlpha;
         private bool _isSelected;
         private bool _isHovered;
+        private bool _isPremium;
 
         private void OnValidate()
         {
@@ -24,10 +26,19 @@ namespace UI.ElementSelection.VisualModules
         {
             if (_group == null) return;
 
-            CanvasGroupData targetState = _isSelected ? _selectedState : _defaultState;
-            if (_isHovered && _hoveredState.Enabled)
+            CanvasGroupData targetState;
+            
+            if (_isPremium && _premiumState.Enabled)
             {
-                targetState = _hoveredState.Value;
+                targetState = _premiumState.Value;
+            }
+            else
+            {
+                targetState = _isSelected ? _selectedState : _defaultState;
+                if (_isHovered && _hoveredState.Enabled)
+                {
+                    targetState = _hoveredState.Value;
+                }
             }
 
             _group.interactable = targetState.Interactable;
@@ -60,6 +71,12 @@ namespace UI.ElementSelection.VisualModules
         public override void OnHoverChanged(bool isHovered)
         {
             _isHovered = isHovered;
+            UpdateState(false);
+        }
+
+        public override void OnPremium()
+        {
+            _isPremium = true;
             UpdateState(false);
         }
         

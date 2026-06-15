@@ -11,12 +11,14 @@ namespace UI.CustomButtons
         [SerializeField] private CustomButtonState<bool> _pressedValue;
         [SerializeField] private CustomButtonState<bool> _selectedValue;
         [SerializeField] private CustomButtonState<bool> _disabledValue;
+        [SerializeField] private CustomButtonState<bool> _premiumValue;
 
         public void OnNormal() => SetActive(_normalValue);
         public void OnHighlighted() => SetActive(_highlightedValue.GetValue(_normalValue));
         public void OnPressed() => SetActive(_pressedValue.GetValue(_normalValue));
         public void OnSelected() => SetActive(_selectedValue.GetValue(_normalValue));
         public void OnDisabled() => SetActive(_disabledValue.GetValue(_normalValue));
+        public void OnPremium() => SetActive(_premiumValue.GetValue(_normalValue));
 
         private void SetActive(bool active)
         {
