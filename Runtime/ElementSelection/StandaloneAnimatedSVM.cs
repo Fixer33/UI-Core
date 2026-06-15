@@ -18,7 +18,7 @@ namespace UI.ElementSelection
         public virtual void OnInitialized() {}
         public abstract void OnSelectionChanged(bool isSelected);
         public virtual void OnHoverChanged(bool isHovered) {}
-        public virtual void OnPremium() {}
+        public virtual void OnPremium(bool isInPremiumState) {}
         public virtual float GetAnimationDuration() => _animate ? _duration : 0f;
 
         protected void StartAnimation(Action<float> updateAction)

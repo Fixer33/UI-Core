@@ -43,7 +43,12 @@ namespace UI.CustomButtons
 
         private void UpdatePremiumState()
         {
-            if (!_isPremium) return;
+            if (!_isPremium)
+            {
+                _isInPremiumState = false;
+                DoStateTransition(currentSelectionState, false);
+                return;
+            }
             
             bool hasPremium = IAP.IsInitialized && IAP.IsPremiumPurchased();
             _isInPremiumState = !hasPremium;

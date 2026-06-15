@@ -84,14 +84,22 @@ namespace UI.ElementSelection
 
         private void UpdatePremiumState()
         {
-            if (!_isPremium) return;
+            if (!_isPremium)
+            {
+                _isInPremiumState = false;
+                UpdateModulesPremiumState();
+                SetSelected(IsSelected, true);
+                return;
+            }
 
             bool hasPremium = IAP.IsInitialized && IAP.IsPremiumPurchased();
             _isInPremiumState = !hasPremium;
 
+            UpdateModulesPremiumState();
+            
             if (_isInPremiumState)
             {
-                ApplyPremiumVisuals();
+                // Already updated via UpdateModulesPremiumState
             }
             else
             {
@@ -99,14 +107,19 @@ namespace UI.ElementSelection
             }
         }
 
-        private void ApplyPremiumVisuals()
+        private void UpdateModulesPremiumState()
         {
             InitializeIfNeeded();
             foreach (var module in _modules)
             {
                 if (module.IsElementAlive)
-                    module.OnPremium();
+                    module.OnPremium(_isInPremiumState);
             }
+        }
+
+        private void ApplyPremiumVisuals()
+        {
+            UpdateModulesPremiumState();
         }
 
         private void InitializeIfNeeded()
@@ -136,7 +149,7 @@ namespace UI.ElementSelection
 
             if (_isInPremiumState)
             {
-                ApplyPremiumVisuals();
+                UpdateModulesPremiumState();
             }
             else
             {

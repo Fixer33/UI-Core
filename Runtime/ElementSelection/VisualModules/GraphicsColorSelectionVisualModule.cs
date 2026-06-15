@@ -30,9 +30,9 @@ namespace UI.ElementSelection.VisualModules
             UpdateColor();
         }
 
-        public override void OnPremium()
+        public override void OnPremium(bool isInPremiumState)
         {
-            _isPremium = true;
+            _isPremium = isInPremiumState;
             UpdateColor();
         }
 

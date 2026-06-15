@@ -74,9 +74,9 @@ namespace UI.ElementSelection.VisualModules
             UpdateState(false);
         }
 
-        public override void OnPremium()
+        public override void OnPremium(bool isInPremiumState)
         {
-            _isPremium = true;
+            _isPremium = isInPremiumState;
             UpdateState(false);
         }
         

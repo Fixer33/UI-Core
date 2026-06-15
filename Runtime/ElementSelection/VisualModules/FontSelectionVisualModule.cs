@@ -27,9 +27,9 @@ namespace UI.ElementSelection.VisualModules
             UpdateFont();
         }
 
-        public void OnPremium()
+        public void OnPremium(bool isInPremiumState)
         {
-            _isPremium = true;
+            _isPremium = isInPremiumState;
             UpdateFont();
         }
 
