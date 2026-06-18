@@ -161,6 +161,71 @@ namespace UI.CustomButtons
                 }
             }
         }
+
+        public void SetColorOverride(CustomButtonVisualState state, bool enabled, Color value)
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.SetColorOverride(state, enabled, value);
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+
+        public void SetAlphaOverride(CustomButtonVisualState state, bool enabled, float value)
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.SetAlphaOverride(state, enabled, value);
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+
+        public void SetFontOverride(CustomButtonVisualState state, bool enabled, TMPro.TMP_FontAsset value)
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.SetFontOverride(state, enabled, value);
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+
+        public void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value)
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.SetToggleOverride(state, enabled, value);
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+
+        public void ClearOverrides()
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.ClearOverrides();
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+    }
+
+    public enum CustomButtonVisualState
+    {
+        Normal,
+        Highlighted,
+        Pressed,
+        Selected,
+        Disabled,
+        Premium
     }
 
     public interface ICustomButtonVisualComponent
@@ -171,6 +236,13 @@ namespace UI.CustomButtons
         void OnSelected();
         void OnDisabled();
         void OnPremium();
+        
+        void SetColorOverride(CustomButtonVisualState state, bool enabled, Color value);
+        void SetAlphaOverride(CustomButtonVisualState state, bool enabled, float value);
+        void SetFontOverride(CustomButtonVisualState state, bool enabled, TMPro.TMP_FontAsset value);
+        void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value);
+        
+        void ClearOverrides();
     }
 
     public interface ICustomButtonAnimatedVisualComponent : ICustomButtonVisualComponent

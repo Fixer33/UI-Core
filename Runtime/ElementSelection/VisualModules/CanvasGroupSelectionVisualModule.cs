@@ -17,6 +17,11 @@ namespace UI.ElementSelection.VisualModules
         private bool _isHovered;
         private bool _isPremium;
 
+        private SelectionModuleState<CanvasGroupData>? _overriddenDefault;
+        private SelectionModuleState<CanvasGroupData>? _overriddenSelected;
+        private SelectionModuleState<CanvasGroupData>? _overriddenHovered;
+        private SelectionModuleState<CanvasGroupData>? _overriddenPremium;
+
         private void OnValidate()
         {
             _group ??= GetComponent<CanvasGroup>();
@@ -28,16 +33,16 @@ namespace UI.ElementSelection.VisualModules
 
             CanvasGroupData targetState;
             
-            if (_isPremium && _premiumState.Enabled)
+            if (_isPremium && (_overriddenPremium ?? _premiumState).Enabled)
             {
-                targetState = _premiumState.Value;
+                targetState = (_overriddenPremium ?? _premiumState).Value;
             }
             else
             {
-                targetState = _isSelected ? _selectedState : _defaultState;
-                if (_isHovered && _hoveredState.Enabled)
+                targetState = _isSelected ? (_overriddenSelected?.GetValue(_defaultState) ?? _selectedState) : (_overriddenDefault?.GetValue(_defaultState) ?? _defaultState);
+                if (_isHovered && (_overriddenHovered ?? _hoveredState).Enabled)
                 {
-                    targetState = _hoveredState.Value;
+                    targetState = (_overriddenHovered ?? _hoveredState).Value;
                 }
             }
 
@@ -79,6 +84,31 @@ namespace UI.ElementSelection.VisualModules
             _isPremium = isInPremiumState;
             UpdateState(false);
         }
+
+        public override void SetAlphaOverride(SelectionVisualState state, bool enabled, float value)
+        {
+            SelectionModuleState<CanvasGroupData> overrideState = new SelectionModuleState<CanvasGroupData> 
+            { 
+                Enabled = enabled, 
+                Value = new CanvasGroupData(value, true, true, false) 
+            };
+            
+            switch (state)
+            {
+                case SelectionVisualState.Default: _overriddenDefault = overrideState; break;
+                case SelectionVisualState.Selected: _overriddenSelected = overrideState; break;
+                case SelectionVisualState.Hovered: _overriddenHovered = overrideState; break;
+                case SelectionVisualState.Premium: _overriddenPremium = overrideState; break;
+            }
+        }
+
+        public override void ClearOverrides()
+        {
+            _overriddenDefault = null;
+            _overriddenSelected = null;
+            _overriddenHovered = null;
+            _overriddenPremium = null;
+        }
         
         [Serializable]
         public struct CanvasGroupData
@@ -87,6 +117,14 @@ namespace UI.ElementSelection.VisualModules
             [field: SerializeField] public bool Interactable { get; private set; }
             [field: SerializeField] public bool BlockRaycasts { get; private set; }
             [field: SerializeField] public bool IgnoreParentGroups { get; private set; }
+
+            public CanvasGroupData(float alpha, bool interactable, bool blockRaycasts, bool ignoreParentGroups)
+            {
+                Alpha = alpha;
+                Interactable = interactable;
+                BlockRaycasts = blockRaycasts;
+                IgnoreParentGroups = ignoreParentGroups;
+            }
         }
     }
 }

@@ -14,6 +14,11 @@ namespace UI.ElementSelection.VisualModules
         private bool _isSelected;
         private bool _isHovered;
         private bool _isPremium;
+        
+        private SelectionModuleState<TMP_FontAsset>? _overriddenDefault;
+        private SelectionModuleState<TMP_FontAsset>? _overriddenSelected;
+        private SelectionModuleState<TMP_FontAsset>? _overriddenHovered;
+        private SelectionModuleState<TMP_FontAsset>? _overriddenPremium;
 
         public void OnSelectionChanged(bool isSelected)
         {
@@ -33,22 +38,42 @@ namespace UI.ElementSelection.VisualModules
             UpdateFont();
         }
 
+        public void SetFontOverride(SelectionVisualState state, bool enabled, TMP_FontAsset value)
+        {
+            SelectionModuleState<TMP_FontAsset> overrideState = new SelectionModuleState<TMP_FontAsset> { Enabled = enabled, Value = value };
+            switch (state)
+            {
+                case SelectionVisualState.Default: _overriddenDefault = overrideState; break;
+                case SelectionVisualState.Selected: _overriddenSelected = overrideState; break;
+                case SelectionVisualState.Hovered: _overriddenHovered = overrideState; break;
+                case SelectionVisualState.Premium: _overriddenPremium = overrideState; break;
+            }
+        }
+
+        public void ClearOverrides()
+        {
+            _overriddenDefault = null;
+            _overriddenSelected = null;
+            _overriddenHovered = null;
+            _overriddenPremium = null;
+        }
+
         private void UpdateFont()
         {
             if (_text == null) return;
 
             TMP_FontAsset targetFont;
 
-            if (_isPremium && _premiumFont.Enabled)
+            if (_isPremium && (_overriddenPremium ?? _premiumFont).Enabled)
             {
-                targetFont = _premiumFont.Value;
+                targetFont = (_overriddenPremium ?? _premiumFont).Value;
             }
             else
             {
-                targetFont = _isSelected ? _selectedFont : _defaultFont;
-                if (_isHovered && _hoveredFont.Enabled)
+                targetFont = _isSelected ? (_overriddenSelected?.GetValue(_defaultFont) ?? _selectedFont) : (_overriddenDefault?.GetValue(_defaultFont) ?? _defaultFont);
+                if (_isHovered && (_overriddenHovered ?? _hoveredFont).Enabled)
                 {
-                    targetFont = _hoveredFont.Value;
+                    targetFont = (_overriddenHovered ?? _hoveredFont).Value;
                 }
             }
 

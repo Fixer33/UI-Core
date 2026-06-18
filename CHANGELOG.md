@@ -1,3 +1,8 @@
+## [1.5.0]
+
+### Added
+- Parameter overrides
+
 ## [1.4.0]
 
 ### Added
@@ -8,6 +13,7 @@
 - UIToolkit-based custom editors for visual components and selection modules for improved UX.
 - Custom buttons
 - Premium states for CustomButton and SelectableElement
+- Scriptable property overrides for all visual components and selection modules.
 
 ## [1.3.0] - 2026-05-04
 

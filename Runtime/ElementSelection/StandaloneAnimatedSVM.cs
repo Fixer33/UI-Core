@@ -21,6 +21,13 @@ namespace UI.ElementSelection
         public virtual void OnPremium(bool isInPremiumState) {}
         public virtual float GetAnimationDuration() => _animate ? _duration : 0f;
 
+        public virtual void SetColorOverride(SelectionVisualState state, bool enabled, Color value) {}
+        public virtual void SetAlphaOverride(SelectionVisualState state, bool enabled, float value) {}
+        public virtual void SetFontOverride(SelectionVisualState state, bool enabled, TMPro.TMP_FontAsset value) {}
+        public virtual void SetToggleOverride(SelectionVisualState state, bool enabled, bool value) {}
+
+        public virtual void ClearOverrides() {}
+
         protected void StartAnimation(Action<float> updateAction)
         {
             StopAnimation();

@@ -17,12 +17,43 @@ namespace UI.CustomButtons
         private Color _startColor;
         private Color _targetColor;
 
-        public override void OnNormal() => SetColor(_normalColor);
-        public override void OnHighlighted() => SetColor(_highlightedColor.GetValue(_normalColor));
-        public override void OnPressed() => SetColor(_pressedColor.GetValue(_normalColor));
-        public override void OnSelected() => SetColor(_selectedColor.GetValue(_normalColor));
-        public override void OnDisabled() => SetColor(_disabledColor.GetValue(_normalColor));
-        public override void OnPremium() => SetColor(_premiumColor.GetValue(_normalColor));
+        private CustomButtonState<Color>? _overriddenNormal;
+        private CustomButtonState<Color>? _overriddenHighlighted;
+        private CustomButtonState<Color>? _overriddenPressed;
+        private CustomButtonState<Color>? _overriddenSelected;
+        private CustomButtonState<Color>? _overriddenDisabled;
+        private CustomButtonState<Color>? _overriddenPremium;
+
+        public override void OnNormal() => SetColor(_overriddenNormal?.GetValue(_normalColor) ?? _normalColor);
+        public override void OnHighlighted() => SetColor((_overriddenHighlighted ?? _highlightedColor).GetValue(_normalColor));
+        public override void OnPressed() => SetColor((_overriddenPressed ?? _pressedColor).GetValue(_normalColor));
+        public override void OnSelected() => SetColor((_overriddenSelected ?? _selectedColor).GetValue(_normalColor));
+        public override void OnDisabled() => SetColor((_overriddenDisabled ?? _disabledColor).GetValue(_normalColor));
+        public override void OnPremium() => SetColor((_overriddenPremium ?? _premiumColor).GetValue(_normalColor));
+
+        public override void SetColorOverride(CustomButtonVisualState state, bool enabled, Color value)
+        {
+            CustomButtonState<Color> overrideState = new CustomButtonState<Color> { Enabled = enabled, Value = value };
+            switch (state)
+            {
+                case CustomButtonVisualState.Normal: _overriddenNormal = overrideState; break;
+                case CustomButtonVisualState.Highlighted: _overriddenHighlighted = overrideState; break;
+                case CustomButtonVisualState.Pressed: _overriddenPressed = overrideState; break;
+                case CustomButtonVisualState.Selected: _overriddenSelected = overrideState; break;
+                case CustomButtonVisualState.Disabled: _overriddenDisabled = overrideState; break;
+                case CustomButtonVisualState.Premium: _overriddenPremium = overrideState; break;
+            }
+        }
+
+        public override void ClearOverrides()
+        {
+            _overriddenNormal = null;
+            _overriddenHighlighted = null;
+            _overriddenPressed = null;
+            _overriddenSelected = null;
+            _overriddenDisabled = null;
+            _overriddenPremium = null;
+        }
 
         private void SetColor(Color targetColor)
         {

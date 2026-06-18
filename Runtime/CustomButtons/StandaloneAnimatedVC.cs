@@ -19,6 +19,13 @@ namespace UI.CustomButtons
         public abstract void OnSelected();
         public abstract void OnDisabled();
         public abstract void OnPremium();
+        
+        public virtual void SetColorOverride(CustomButtonVisualState state, bool enabled, Color value) {}
+        public virtual void SetAlphaOverride(CustomButtonVisualState state, bool enabled, float value) {}
+        public virtual void SetFontOverride(CustomButtonVisualState state, bool enabled, TMPro.TMP_FontAsset value) {}
+        public virtual void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value) {}
+        
+        public abstract void ClearOverrides();
 
         public float GetAnimationDuration() => _animate ? _duration : 0;
 

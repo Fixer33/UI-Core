@@ -295,6 +295,86 @@ namespace UI.ElementSelection
 
             return default;
         }
+
+        public void SetColorOverride(SelectionVisualState state, bool enabled, Color value)
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.SetColorOverride(state, enabled, value);
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
+
+        public void SetAlphaOverride(SelectionVisualState state, bool enabled, float value)
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.SetAlphaOverride(state, enabled, value);
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
+
+        public void SetFontOverride(SelectionVisualState state, bool enabled, TMPro.TMP_FontAsset value)
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.SetFontOverride(state, enabled, value);
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
+
+        public void SetToggleOverride(SelectionVisualState state, bool enabled, bool value)
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.SetToggleOverride(state, enabled, value);
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
+
+        public void ClearOverrides()
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.ClearOverrides();
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
     }
 
     [Serializable]

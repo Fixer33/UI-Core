@@ -3,7 +3,7 @@ using UnityEngine;
 namespace UI.CustomButtons
 {
     [AddComponentMenu("UI/Custom Buttons/GameObject Toggle VC")]
-    public class GameObjectToggleVC : MonoBehaviour, ICustomButtonVisualComponent
+    public class GameObjectToggleVC : StandaloneAnimatedVC
     {
         [SerializeField] private GameObject _target;
         [SerializeField] private bool _normalValue;
@@ -13,12 +13,43 @@ namespace UI.CustomButtons
         [SerializeField] private CustomButtonState<bool> _disabledValue;
         [SerializeField] private CustomButtonState<bool> _premiumValue;
 
-        public void OnNormal() => SetActive(_normalValue);
-        public void OnHighlighted() => SetActive(_highlightedValue.GetValue(_normalValue));
-        public void OnPressed() => SetActive(_pressedValue.GetValue(_normalValue));
-        public void OnSelected() => SetActive(_selectedValue.GetValue(_normalValue));
-        public void OnDisabled() => SetActive(_disabledValue.GetValue(_normalValue));
-        public void OnPremium() => SetActive(_premiumValue.GetValue(_normalValue));
+        private CustomButtonState<bool>? _overriddenNormal;
+        private CustomButtonState<bool>? _overriddenHighlighted;
+        private CustomButtonState<bool>? _overriddenPressed;
+        private CustomButtonState<bool>? _overriddenSelected;
+        private CustomButtonState<bool>? _overriddenDisabled;
+        private CustomButtonState<bool>? _overriddenPremium;
+
+        public override void OnNormal() => SetActive(_overriddenNormal?.GetValue(_normalValue) ?? _normalValue);
+        public override void OnHighlighted() => SetActive((_overriddenHighlighted ?? _highlightedValue).GetValue(_normalValue));
+        public override void OnPressed() => SetActive((_overriddenPressed ?? _pressedValue).GetValue(_normalValue));
+        public override void OnSelected() => SetActive((_overriddenSelected ?? _selectedValue).GetValue(_normalValue));
+        public override void OnDisabled() => SetActive((_overriddenDisabled ?? _disabledValue).GetValue(_normalValue));
+        public override void OnPremium() => SetActive((_overriddenPremium ?? _premiumValue).GetValue(_normalValue));
+
+        public override void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value)
+        {
+            CustomButtonState<bool> overrideState = new CustomButtonState<bool> { Enabled = enabled, Value = value };
+            switch (state)
+            {
+                case CustomButtonVisualState.Normal: _overriddenNormal = overrideState; break;
+                case CustomButtonVisualState.Highlighted: _overriddenHighlighted = overrideState; break;
+                case CustomButtonVisualState.Pressed: _overriddenPressed = overrideState; break;
+                case CustomButtonVisualState.Selected: _overriddenSelected = overrideState; break;
+                case CustomButtonVisualState.Disabled: _overriddenDisabled = overrideState; break;
+                case CustomButtonVisualState.Premium: _overriddenPremium = overrideState; break;
+            }
+        }
+
+        public override void ClearOverrides()
+        {
+            _overriddenNormal = null;
+            _overriddenHighlighted = null;
+            _overriddenPressed = null;
+            _overriddenSelected = null;
+            _overriddenDisabled = null;
+            _overriddenPremium = null;
+        }
 
         private void SetActive(bool active)
         {

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UI.CustomButtons
 {
     [AddComponentMenu("UI/Custom Buttons/Font VC")]
-    public class FontVC : MonoBehaviour, ICustomButtonVisualComponent
+    public class FontVC : StandaloneAnimatedVC
     {
         [SerializeField] private TMP_Text _text;
         [SerializeField] private TMP_FontAsset _normalFont;
@@ -14,12 +14,43 @@ namespace UI.CustomButtons
         [SerializeField] private CustomButtonState<TMP_FontAsset> _disabledFont;
         [SerializeField] private CustomButtonState<TMP_FontAsset> _premiumFont;
 
-        public void OnNormal() => SetFont(_normalFont);
-        public void OnHighlighted() => SetFont(_highlightedFont.GetValue(_normalFont));
-        public void OnPressed() => SetFont(_pressedFont.GetValue(_normalFont));
-        public void OnSelected() => SetFont(_selectedFont.GetValue(_normalFont));
-        public void OnDisabled() => SetFont(_disabledFont.GetValue(_normalFont));
-        public void OnPremium() => SetFont(_premiumFont.GetValue(_normalFont));
+        private CustomButtonState<TMP_FontAsset>? _overriddenNormal;
+        private CustomButtonState<TMP_FontAsset>? _overriddenHighlighted;
+        private CustomButtonState<TMP_FontAsset>? _overriddenPressed;
+        private CustomButtonState<TMP_FontAsset>? _overriddenSelected;
+        private CustomButtonState<TMP_FontAsset>? _overriddenDisabled;
+        private CustomButtonState<TMP_FontAsset>? _overriddenPremium;
+
+        public override void OnNormal() => SetFont(_overriddenNormal?.GetValue(_normalFont) ?? _normalFont);
+        public override void OnHighlighted() => SetFont((_overriddenHighlighted ?? _highlightedFont).GetValue(_normalFont));
+        public override void OnPressed() => SetFont((_overriddenPressed ?? _pressedFont).GetValue(_normalFont));
+        public override void OnSelected() => SetFont((_overriddenSelected ?? _selectedFont).GetValue(_normalFont));
+        public override void OnDisabled() => SetFont((_overriddenDisabled ?? _disabledFont).GetValue(_normalFont));
+        public override void OnPremium() => SetFont((_overriddenPremium ?? _premiumFont).GetValue(_normalFont));
+
+        public override void SetFontOverride(CustomButtonVisualState state, bool enabled, TMP_FontAsset value)
+        {
+            CustomButtonState<TMP_FontAsset> overrideState = new CustomButtonState<TMP_FontAsset> { Enabled = enabled, Value = value };
+            switch (state)
+            {
+                case CustomButtonVisualState.Normal: _overriddenNormal = overrideState; break;
+                case CustomButtonVisualState.Highlighted: _overriddenHighlighted = overrideState; break;
+                case CustomButtonVisualState.Pressed: _overriddenPressed = overrideState; break;
+                case CustomButtonVisualState.Selected: _overriddenSelected = overrideState; break;
+                case CustomButtonVisualState.Disabled: _overriddenDisabled = overrideState; break;
+                case CustomButtonVisualState.Premium: _overriddenPremium = overrideState; break;
+            }
+        }
+
+        public override void ClearOverrides()
+        {
+            _overriddenNormal = null;
+            _overriddenHighlighted = null;
+            _overriddenPressed = null;
+            _overriddenSelected = null;
+            _overriddenDisabled = null;
+            _overriddenPremium = null;
+        }
 
         private void SetFont(TMP_FontAsset font)
         {
