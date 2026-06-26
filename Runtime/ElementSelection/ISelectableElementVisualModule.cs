@@ -12,9 +12,9 @@ namespace UI.ElementSelection
 
     public interface ISelectableElementVisualModule
     {
-        public bool IsElementAlive => this is MonoBehaviour monoBehaviour ? monoBehaviour : true;
+        public bool IsElementAlive { get; }
 
-        public void OnInitialized() {}
+        public void OnInitialized(MonoBehaviour owner) {}
         public void OnSelectionChanged(bool isSelected);
         public void OnHoverChanged(bool isHovered) {}
         public void OnPremium(bool isInPremiumState) {}
@@ -24,7 +24,14 @@ namespace UI.ElementSelection
         public void SetAlphaOverride(SelectionVisualState state, bool enabled, float value) {}
         public void SetFontOverride(SelectionVisualState state, bool enabled, TMPro.TMP_FontAsset value) {}
         public void SetToggleOverride(SelectionVisualState state, bool enabled, bool value) {}
+        public void SetScaleOverride(SelectionVisualState state, bool enabled, Vector3 value) {}
         
         public void ClearOverrides() {}
+
+        public bool IsValid(out string errorMessage)
+        {
+            errorMessage = null;
+            return true;
+        }
     }
 }

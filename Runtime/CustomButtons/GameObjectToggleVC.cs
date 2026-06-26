@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace UI.CustomButtons
 {
-    [AddComponentMenu("UI/Custom Buttons/GameObject Toggle VC")]
-    public class GameObjectToggleVC : StandaloneAnimatedVC
+    [Serializable]
+    public class GameObjectToggleVC : CustomButtonModule
     {
         [SerializeField] private GameObject _target;
         [SerializeField] private bool _normalValue;
@@ -49,6 +50,18 @@ namespace UI.CustomButtons
             _overriddenSelected = null;
             _overriddenDisabled = null;
             _overriddenPremium = null;
+        }
+
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_target == null)
+            {
+                errorMessage = "Target GameObject is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         private void SetActive(bool active)

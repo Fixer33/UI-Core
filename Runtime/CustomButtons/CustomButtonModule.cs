@@ -4,14 +4,21 @@ using UnityEngine;
 
 namespace UI.CustomButtons
 {
-    public abstract class StandaloneAnimatedVC : MonoBehaviour, ICustomButtonAnimatedVisualComponent
+    [Serializable]
+    public abstract class CustomButtonModule : ICustomButtonAnimatedVisualComponent
     {
         [Header("Animation")]
         [SerializeField] protected bool _animate;
         [SerializeField] protected float _duration = 0.1f;
         [SerializeField] protected bool _useUnscaledTime = true;
 
+        protected MonoBehaviour _owner;
         private Coroutine _animationCoroutine;
+
+        public virtual void OnInitialized(MonoBehaviour owner)
+        {
+            _owner = owner;
+        }
 
         public abstract void OnNormal();
         public abstract void OnHighlighted();
@@ -24,18 +31,25 @@ namespace UI.CustomButtons
         public virtual void SetAlphaOverride(CustomButtonVisualState state, bool enabled, float value) {}
         public virtual void SetFontOverride(CustomButtonVisualState state, bool enabled, TMPro.TMP_FontAsset value) {}
         public virtual void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value) {}
+        public virtual void SetScaleOverride(CustomButtonVisualState state, bool enabled, Vector3 value) {}
         
         public abstract void ClearOverrides();
 
         public float GetAnimationDuration() => _animate ? _duration : 0;
 
+        public virtual bool IsValid(out string errorMessage)
+        {
+            errorMessage = null;
+            return true;
+        }
+
         protected void StartAnimation(Action<float> updateAction)
         {
             StopAnimation();
 
-            if (_animate && Application.isPlaying && gameObject.activeInHierarchy)
+            if (_animate && Application.isPlaying && _owner != null && _owner.gameObject.activeInHierarchy)
             {
-                _animationCoroutine = StartCoroutine(AnimationRoutine(updateAction));
+                _animationCoroutine = _owner.StartCoroutine(AnimationRoutine(updateAction));
             }
             else
             {
@@ -45,9 +59,9 @@ namespace UI.CustomButtons
 
         protected void StopAnimation()
         {
-            if (_animationCoroutine != null)
+            if (_animationCoroutine != null && _owner != null)
             {
-                StopCoroutine(_animationCoroutine);
+                _owner.StopCoroutine(_animationCoroutine);
                 _animationCoroutine = null;
             }
         }
@@ -70,11 +84,6 @@ namespace UI.CustomButtons
 
             updateAction(1f);
             _animationCoroutine = null;
-        }
-
-        protected virtual void OnDisable()
-        {
-            StopAnimation();
         }
     }
 }

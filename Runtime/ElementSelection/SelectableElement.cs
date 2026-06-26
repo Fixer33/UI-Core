@@ -45,7 +45,7 @@ namespace UI.ElementSelection
         [SerializeField] private bool _isSelectedByDefault;
         [SerializeField] private bool _unselectOnClick;
         [SerializeField] private SelectableElementUnityEvents _events;
-        private ISelectableElementVisualModule[] _modules;
+        [SerializeReference] private ISelectableElementVisualModule[] _modules;
         private Behaviour _payloadScriptCache;
         private SelectableElementGroup _group;
         private bool _isInitialized;
@@ -127,10 +127,12 @@ namespace UI.ElementSelection
             if (_isInitialized)
                 return;
             
-            _modules = GetComponentsInChildren<ISelectableElementVisualModule>();
+            if (_modules == null)
+                _modules = Array.Empty<ISelectableElementVisualModule>();
+
             foreach (var module in _modules)
             {
-                module.OnInitialized();
+                module.OnInitialized(this);
             }
             _isInitialized = true;
         }
@@ -351,6 +353,22 @@ namespace UI.ElementSelection
             {
                 if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
                 module.SetToggleOverride(state, enabled, value);
+            }
+            
+            // Re-apply state
+            if (_isInPremiumState)
+                UpdateModulesPremiumState();
+            else
+                SetSelected(IsSelected, true);
+        }
+
+        public void SetScaleOverride(SelectionVisualState state, bool enabled, Vector3 value)
+        {
+            InitializeIfNeeded();
+            foreach (var module in _modules)
+            {
+                if (module == null || (module is MonoBehaviour mono && mono == null)) continue;
+                module.SetScaleOverride(state, enabled, value);
             }
             
             // Re-apply state

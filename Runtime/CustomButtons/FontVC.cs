@@ -1,10 +1,11 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 namespace UI.CustomButtons
 {
-    [AddComponentMenu("UI/Custom Buttons/Font VC")]
-    public class FontVC : StandaloneAnimatedVC
+    [Serializable]
+    public class FontVC : CustomButtonModule
     {
         [SerializeField] private TMP_Text _text;
         [SerializeField] private TMP_FontAsset _normalFont;
@@ -50,6 +51,18 @@ namespace UI.CustomButtons
             _overriddenSelected = null;
             _overriddenDisabled = null;
             _overriddenPremium = null;
+        }
+
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_text == null)
+            {
+                errorMessage = "TMP Text is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         private void SetFont(TMP_FontAsset font)

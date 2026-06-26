@@ -6,26 +6,86 @@ using UnityEngine.UIElements;
 
 namespace UI.Editor.CustomButtons
 {
-    public abstract class VisualComponentEditor : UnityEditor.Editor
+    [CustomPropertyDrawer(typeof(GraphicsColorVC))]
+    public class GraphicsColorVCDrawer : PropertyDrawer
     {
-        public override VisualElement CreateInspectorGUI()
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_graphic")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_normalColor")));
+            
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_highlightedColor"), "Highlighted");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_pressedColor"), "Pressed");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_selectedColor"), "Selected");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_disabledColor"), "Disabled");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_premiumColor"), "Premium");
 
-            DrawCustomInspector(root);
-
+            VisualComponentEditor.DrawAnimationSettings(root, property);
             return root;
         }
+    }
 
-        protected virtual void DrawCustomInspector(VisualElement root)
+    [CustomPropertyDrawer(typeof(GameObjectToggleVC))]
+    public class GameObjectToggleVCDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            // Default implementation just draws all properties
-            InspectorElement.FillDefaultInspector(root, serializedObject, this);
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_target")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_normalValue")));
+
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_highlightedValue"), "Highlighted");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_pressedValue"), "Pressed");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_selectedValue"), "Selected");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_disabledValue"), "Disabled");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_premiumValue"), "Premium");
+            return root;
         }
+    }
 
-        protected void CreateStateField(VisualElement root, string propertyName, string label)
+    [CustomPropertyDrawer(typeof(CanvasGroupVC))]
+    public class CanvasGroupVCDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var property = serializedObject.FindProperty(propertyName);
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_canvasGroup")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_normalAlpha")));
+
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_highlightedAlpha"), "Highlighted");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_pressedAlpha"), "Pressed");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_selectedAlpha"), "Selected");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_disabledAlpha"), "Disabled");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_premiumAlpha"), "Premium");
+
+            VisualComponentEditor.DrawAnimationSettings(root, property);
+            return root;
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(FontVC))]
+    public class FontVCDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_text")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_normalFont")));
+
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_highlightedFont"), "Highlighted");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_pressedFont"), "Pressed");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_selectedFont"), "Selected");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_disabledFont"), "Disabled");
+            VisualComponentEditor.CreateStateField(root, property.FindPropertyRelative("_premiumFont"), "Premium");
+            return root;
+        }
+    }
+
+    public static class VisualComponentEditor
+    {
+        public static void CreateStateField(VisualElement root, SerializedProperty property, string label)
+        {
             if (property == null) return;
 
             var container = new VisualElement();
@@ -52,87 +112,17 @@ namespace UI.Editor.CustomButtons
             container.Add(field);
             root.Add(container);
         }
-    }
 
-    [CustomEditor(typeof(GraphicsColorVC))]
-    public class GraphicsColorVCEditor : VisualComponentEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
+        public static void DrawAnimationSettings(VisualElement root, SerializedProperty property)
         {
-            root.Add(new PropertyField(serializedObject.FindProperty("_graphic")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_normalColor")));
-            
-            CreateStateField(root, "_highlightedColor", "Highlighted");
-            CreateStateField(root, "_pressedColor", "Pressed");
-            CreateStateField(root, "_selectedColor", "Selected");
-            CreateStateField(root, "_disabledColor", "Disabled");
-            CreateStateField(root, "_premiumColor", "Premium");
-
             var animHeader = new Label("Animation");
             animHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
             animHeader.style.marginTop = 10;
             root.Add(animHeader);
 
-            root.Add(new PropertyField(serializedObject.FindProperty("_animate")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_duration")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_useUnscaledTime")));
-        }
-    }
-
-    [CustomEditor(typeof(GameObjectToggleVC))]
-    public class GameObjectToggleVCEditor : VisualComponentEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_target")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_normalValue")));
-
-            CreateStateField(root, "_highlightedValue", "Highlighted");
-            CreateStateField(root, "_pressedValue", "Pressed");
-            CreateStateField(root, "_selectedValue", "Selected");
-            CreateStateField(root, "_disabledValue", "Disabled");
-            CreateStateField(root, "_premiumValue", "Premium");
-        }
-    }
-
-    [CustomEditor(typeof(CanvasGroupVC))]
-    public class CanvasGroupVCEditor : VisualComponentEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_canvasGroup")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_normalAlpha")));
-
-            CreateStateField(root, "_highlightedAlpha", "Highlighted");
-            CreateStateField(root, "_pressedAlpha", "Pressed");
-            CreateStateField(root, "_selectedAlpha", "Selected");
-            CreateStateField(root, "_disabledAlpha", "Disabled");
-            CreateStateField(root, "_premiumAlpha", "Premium");
-
-            var animHeader = new Label("Animation");
-            animHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
-            animHeader.style.marginTop = 10;
-            root.Add(animHeader);
-
-            root.Add(new PropertyField(serializedObject.FindProperty("_animate")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_duration")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_useUnscaledTime")));
-        }
-    }
-
-    [CustomEditor(typeof(FontVC))]
-    public class FontVCEditor : VisualComponentEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_text")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_normalFont")));
-
-            CreateStateField(root, "_highlightedFont", "Highlighted");
-            CreateStateField(root, "_pressedFont", "Pressed");
-            CreateStateField(root, "_selectedFont", "Selected");
-            CreateStateField(root, "_disabledFont", "Disabled");
-            CreateStateField(root, "_premiumFont", "Premium");
+            root.Add(new PropertyField(property.FindPropertyRelative("_animate")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_duration")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_useUnscaledTime")));
         }
     }
 }

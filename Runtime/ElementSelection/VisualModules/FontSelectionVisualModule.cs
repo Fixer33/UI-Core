@@ -1,10 +1,13 @@
+using System;
 using TMPro;
+using UI.ElementSelection;
 using UnityEngine;
 
 namespace UI.ElementSelection.VisualModules
 {
     [AddComponentMenu("UI/Element Selection/Modules/TMP Font SVM")]
-    public class FontSelectionVisualModule : MonoBehaviour, ISelectableElementVisualModule
+    [Serializable]
+    public class FontSelectionVisualModule : SelectableElementModule
     {
         [SerializeField] private TMP_FontAsset _defaultFont, _selectedFont;
         [SerializeField] private SelectionModuleState<TMP_FontAsset> _hoveredFont;
@@ -20,25 +23,25 @@ namespace UI.ElementSelection.VisualModules
         private SelectionModuleState<TMP_FontAsset>? _overriddenHovered;
         private SelectionModuleState<TMP_FontAsset>? _overriddenPremium;
 
-        public void OnSelectionChanged(bool isSelected)
+        public override void OnSelectionChanged(bool isSelected)
         {
             _isSelected = isSelected;
             UpdateFont();
         }
 
-        public void OnHoverChanged(bool isHovered)
+        public override void OnHoverChanged(bool isHovered)
         {
             _isHovered = isHovered;
             UpdateFont();
         }
 
-        public void OnPremium(bool isInPremiumState)
+        public override void OnPremium(bool isInPremiumState)
         {
             _isPremium = isInPremiumState;
             UpdateFont();
         }
 
-        public void SetFontOverride(SelectionVisualState state, bool enabled, TMP_FontAsset value)
+        public override void SetFontOverride(SelectionVisualState state, bool enabled, TMP_FontAsset value)
         {
             SelectionModuleState<TMP_FontAsset> overrideState = new SelectionModuleState<TMP_FontAsset> { Enabled = enabled, Value = value };
             switch (state)
@@ -50,12 +53,24 @@ namespace UI.ElementSelection.VisualModules
             }
         }
 
-        public void ClearOverrides()
+        public override void ClearOverrides()
         {
             _overriddenDefault = null;
             _overriddenSelected = null;
             _overriddenHovered = null;
             _overriddenPremium = null;
+        }
+
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_text == null)
+            {
+                errorMessage = "TMP Text is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         private void UpdateFont()
@@ -79,11 +94,6 @@ namespace UI.ElementSelection.VisualModules
 
             if (targetFont != null)
                 _text.font = targetFont;
-        }
-
-        private void OnValidate()
-        {
-            _text ??= GetComponent<TMP_Text>();
         }
     }
 }

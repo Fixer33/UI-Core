@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.CustomButtons
 {
-    [AddComponentMenu("UI/Custom Buttons/Graphics Color VC")]
-    public class GraphicsColorVC : StandaloneAnimatedVC
+    [Serializable]
+    public class GraphicsColorVC : CustomButtonModule
     {
         [SerializeField] private Graphic _graphic;
         [SerializeField] private Color _normalColor = Color.white;
@@ -55,6 +56,18 @@ namespace UI.CustomButtons
             _overriddenPremium = null;
         }
 
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_graphic == null)
+            {
+                errorMessage = "Graphic is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         private void SetColor(Color targetColor)
         {
             if (_graphic == null) return;
@@ -64,7 +77,8 @@ namespace UI.CustomButtons
 
             StartAnimation(t =>
             {
-                _graphic.color = Color.Lerp(_startColor, _targetColor, t);
+                if (_graphic != null)
+                    _graphic.color = Color.Lerp(_startColor, _targetColor, t);
             });
         }
     }

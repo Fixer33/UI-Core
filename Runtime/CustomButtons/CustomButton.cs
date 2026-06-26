@@ -11,7 +11,7 @@ namespace UI.CustomButtons
     {
         [SerializeField] private bool _isPremium;
         
-        private ICustomButtonVisualComponent[] _visualComponents;
+        [SerializeReference] private ICustomButtonVisualComponent[] _visualComponents;
         private bool _isInitialized;
         private bool _isInPremiumState;
 
@@ -76,7 +76,14 @@ namespace UI.CustomButtons
         private void InitializeIfNeeded()
         {
             if (_isInitialized) return;
-            _visualComponents = GetComponentsInChildren<ICustomButtonVisualComponent>();
+            
+            if (_visualComponents == null)
+                _visualComponents = Array.Empty<ICustomButtonVisualComponent>();
+
+            foreach (var component in _visualComponents)
+            {
+                component.OnInitialized(this);
+            }
             _isInitialized = true;
         }
 
@@ -206,6 +213,17 @@ namespace UI.CustomButtons
             DoStateTransition(currentSelectionState, false);
         }
 
+        public void SetScaleOverride(CustomButtonVisualState state, bool enabled, Vector3 value)
+        {
+            InitializeIfNeeded();
+            foreach (var component in _visualComponents)
+            {
+                if (component == null || (component is MonoBehaviour mono && mono == null)) continue;
+                component.SetScaleOverride(state, enabled, value);
+            }
+            DoStateTransition(currentSelectionState, false);
+        }
+
         public void ClearOverrides()
         {
             InitializeIfNeeded();
@@ -230,6 +248,7 @@ namespace UI.CustomButtons
 
     public interface ICustomButtonVisualComponent
     {
+        void OnInitialized(MonoBehaviour owner) {}
         void OnNormal();
         void OnHighlighted();
         void OnPressed();
@@ -241,8 +260,15 @@ namespace UI.CustomButtons
         void SetAlphaOverride(CustomButtonVisualState state, bool enabled, float value);
         void SetFontOverride(CustomButtonVisualState state, bool enabled, TMPro.TMP_FontAsset value);
         void SetToggleOverride(CustomButtonVisualState state, bool enabled, bool value);
+        void SetScaleOverride(CustomButtonVisualState state, bool enabled, Vector3 value);
         
         void ClearOverrides();
+
+        bool IsValid(out string errorMessage)
+        {
+            errorMessage = null;
+            return true;
+        }
     }
 
     public interface ICustomButtonAnimatedVisualComponent : ICustomButtonVisualComponent

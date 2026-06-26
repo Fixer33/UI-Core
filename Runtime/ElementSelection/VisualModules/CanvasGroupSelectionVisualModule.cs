@@ -1,10 +1,11 @@
 using System;
+using UI.ElementSelection;
 using UnityEngine;
 
 namespace UI.ElementSelection.VisualModules
 {
-    [AddComponentMenu("UI/Element Selection/Modules/Canvas Group SVM")]
-    public class CanvasGroupSelectionVisualModule : StandaloneAnimatedSVM
+    [Serializable]
+    public class CanvasGroupSelectionVisualModule : SelectableElementModule
     {
         [SerializeField] private CanvasGroupData _defaultState, _selectedState;
         [SerializeField] private SelectionModuleState<CanvasGroupData> _hoveredState;
@@ -21,11 +22,6 @@ namespace UI.ElementSelection.VisualModules
         private SelectionModuleState<CanvasGroupData>? _overriddenSelected;
         private SelectionModuleState<CanvasGroupData>? _overriddenHovered;
         private SelectionModuleState<CanvasGroupData>? _overriddenPremium;
-
-        private void OnValidate()
-        {
-            _group ??= GetComponent<CanvasGroup>();
-        }
 
         private void UpdateState(bool instant)
         {
@@ -62,7 +58,8 @@ namespace UI.ElementSelection.VisualModules
             {
                 StartAnimation(t =>
                 {
-                    _group.alpha = Mathf.Lerp(_startAlpha, _targetAlpha, t);
+                    if (_group != null)
+                        _group.alpha = Mathf.Lerp(_startAlpha, _targetAlpha, t);
                 });
             }
         }
@@ -108,6 +105,18 @@ namespace UI.ElementSelection.VisualModules
             _overriddenSelected = null;
             _overriddenHovered = null;
             _overriddenPremium = null;
+        }
+
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_group == null)
+            {
+                errorMessage = "Canvas Group is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
         
         [Serializable]

@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace UI.CustomButtons
 {
-    [AddComponentMenu("UI/Custom Buttons/Canvas Group VC")]
-    public class CanvasGroupVC : StandaloneAnimatedVC
+    [Serializable]
+    public class CanvasGroupVC : CustomButtonModule
     {
         [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private float _normalAlpha = 1f;
@@ -54,6 +55,18 @@ namespace UI.CustomButtons
             _overriddenPremium = null;
         }
 
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_canvasGroup == null)
+            {
+                errorMessage = "Canvas Group is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         private void SetAlpha(float targetAlpha)
         {
             if (_canvasGroup == null) return;
@@ -63,7 +76,8 @@ namespace UI.CustomButtons
 
             StartAnimation(t =>
             {
-                _canvasGroup.alpha = Mathf.Lerp(_startAlpha, _targetAlpha, t);
+                if (_canvasGroup != null)
+                    _canvasGroup.alpha = Mathf.Lerp(_startAlpha, _targetAlpha, t);
             });
         }
     }

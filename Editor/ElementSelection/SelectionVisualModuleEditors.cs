@@ -6,23 +6,78 @@ using UnityEngine.UIElements;
 
 namespace UI.Editor.ElementSelection
 {
-    public abstract class SelectionVisualModuleEditor : UnityEditor.Editor
+    [CustomPropertyDrawer(typeof(GraphicsColorSelectionVisualModule))]
+    public class GraphicsColorSelectionVisualModuleDrawer : PropertyDrawer
     {
-        public override VisualElement CreateInspectorGUI()
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var root = new VisualElement();
-            DrawCustomInspector(root);
+            root.Add(new PropertyField(property.FindPropertyRelative("_graphic")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_defaultColor")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_selectedColor")));
+            
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_hoveredColor"), "Hovered Color");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_premiumColor"), "Premium Color");
+
+            SelectionVisualModuleEditor.DrawAnimationSettings(root, property);
             return root;
         }
+    }
 
-        protected virtual void DrawCustomInspector(VisualElement root)
+    [CustomPropertyDrawer(typeof(CanvasGroupSelectionVisualModule))]
+    public class CanvasGroupSelectionVisualModuleDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            InspectorElement.FillDefaultInspector(root, serializedObject, this);
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_group")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_defaultState")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_selectedState")));
+            
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_hoveredState"), "Hovered State");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_premiumState"), "Premium State");
+
+            SelectionVisualModuleEditor.DrawAnimationSettings(root, property);
+            return root;
         }
+    }
 
-        protected void CreateStateField(VisualElement root, string propertyName, string label)
+    [CustomPropertyDrawer(typeof(FontSelectionVisualModule))]
+    public class FontSelectionVisualModuleDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var property = serializedObject.FindProperty(propertyName);
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_text")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_defaultFont")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_selectedFont")));
+            
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_hoveredFont"), "Hovered Font");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_premiumFont"), "Premium Font");
+            return root;
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(GameObjectToggleSelectionVisualModule))]
+    public class GameObjectToggleSelectionVisualModuleDrawer : PropertyDrawer
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var root = new VisualElement();
+            root.Add(new PropertyField(property.FindPropertyRelative("_gameObject")));
+            
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_normalValue"), "Normal Value");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_selectedValue"), "Selected Value");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_hoveredValue"), "Hovered Value");
+            SelectionVisualModuleEditor.CreateStateField(root, property.FindPropertyRelative("_premiumValue"), "Premium Value");
+            return root;
+        }
+    }
+
+    public static class SelectionVisualModuleEditor
+    {
+        public static void CreateStateField(VisualElement root, SerializedProperty property, string label)
+        {
             if (property == null) return;
 
             var container = new VisualElement();
@@ -50,7 +105,7 @@ namespace UI.Editor.ElementSelection
             root.Add(container);
         }
 
-        protected void DrawAnimationSettings(VisualElement root)
+        public static void DrawAnimationSettings(VisualElement root, SerializedProperty property)
         {
             var animHeader = new Label("Animation");
             animHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -58,69 +113,9 @@ namespace UI.Editor.ElementSelection
             animHeader.style.marginBottom = 2;
             root.Add(animHeader);
 
-            root.Add(new PropertyField(serializedObject.FindProperty("_animate")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_duration")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_useUnscaledTime")));
-        }
-    }
-
-    [CustomEditor(typeof(GraphicsColorSelectionVisualModule))]
-    public class GraphicsColorSelectionVisualModuleEditor : SelectionVisualModuleEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_graphic")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_defaultColor")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_selectedColor")));
-            
-            CreateStateField(root, "_hoveredColor", "Hovered Color");
-            CreateStateField(root, "_premiumColor", "Premium Color");
-
-            DrawAnimationSettings(root);
-        }
-    }
-
-    [CustomEditor(typeof(CanvasGroupSelectionVisualModule))]
-    public class CanvasGroupSelectionVisualModuleEditor : SelectionVisualModuleEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_group")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_defaultState")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_selectedState")));
-            
-            CreateStateField(root, "_hoveredState", "Hovered State");
-            CreateStateField(root, "_premiumState", "Premium State");
-
-            DrawAnimationSettings(root);
-        }
-    }
-
-    [CustomEditor(typeof(FontSelectionVisualModule))]
-    public class FontSelectionVisualModuleEditor : SelectionVisualModuleEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_text")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_defaultFont")));
-            root.Add(new PropertyField(serializedObject.FindProperty("_selectedFont")));
-            
-            CreateStateField(root, "_hoveredFont", "Hovered Font");
-            CreateStateField(root, "_premiumFont", "Premium Font");
-        }
-    }
-
-    [CustomEditor(typeof(GameObjectToggleSelectionVisualModule))]
-    public class GameObjectToggleSelectionVisualModuleEditor : SelectionVisualModuleEditor
-    {
-        protected override void DrawCustomInspector(VisualElement root)
-        {
-            root.Add(new PropertyField(serializedObject.FindProperty("_gameObject")));
-            
-            CreateStateField(root, "_normalValue", "Normal Value");
-            CreateStateField(root, "_selectedValue", "Selected Value");
-            CreateStateField(root, "_hoveredValue", "Hovered Value");
-            CreateStateField(root, "_premiumValue", "Premium Value");
+            root.Add(new PropertyField(property.FindPropertyRelative("_animate")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_duration")));
+            root.Add(new PropertyField(property.FindPropertyRelative("_useUnscaledTime")));
         }
     }
 }

@@ -1,3 +1,20 @@
+## [1.6.0]
+
+### Added
+- Modular visual system for `SelectableElement` and `CustomButton` using `[SerializeReference]`.
+- Unified UIToolkit-based custom editor for managing visual modules (Add, Remove, Reorder, Collapse).
+- New `ScaleSelectionVisualModule` and `ScaleVC` for scale-based transitions.
+- Automatic validation and warnings for modules with missing references in the inspector.
+
+### Changed
+- Converted all SVMs (Selection Visual Modules) and VCs (Visual Components) from `MonoBehaviour` to serializable classes.
+- `CustomButton` inspector now hides standard Unity Button transition fields to focus on modular visuals.
+- Improved runtime stability by gracefully handling destroyed target objects in visual modules.
+
+### Fixed
+- Inspector focus loss when editing module field values.
+- Multi-click requirement for module management buttons.
+
 ## [1.5.0]
 
 ### Added

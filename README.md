@@ -11,8 +11,11 @@ Foundational abstractions and base classes for building modular UI systems in Un
 - Canvas Views that properly toggle both `GameObject` and `Canvas.enabled` for accurate visibility.
 - View Extensions system: implement `IViewExtension` or inherit `ViewExtensionBase` to hook into view lifecycle.
 - Navigation Attributes: `ViewShowButtonAttribute` for automatic view navigation via UI Buttons.
-- Selectable Elements and groups with on-demand initialization to avoid unnecessary setup.
+- Modular `SelectableElement` and `CustomButton` with a serializable module system for flexible visual transitions.
+- Integrated UIToolkit editors for managing visual modules directly on components.
+- Selectable groups with on-demand initialization to avoid unnecessary setup.
 - View Collection Overrides for platform and screen-ratio specific view selection.
+- Standalone animation system for visual transitions, supporting DOTween-independent logic.
 
 ## Installation
 
@@ -42,6 +45,13 @@ public class AnalyticsViewExt : ViewExtensionBase<UICanvasView>
 }
 ```
 
+### Selectable Elements & Custom Buttons
+
+Use `SelectableElement` or `CustomButton` to handle UI interactions. Visuals are managed via a modular system:
+1. Add `SelectableElement` or `CustomButton` component.
+2. In the inspector, use the **Add Module** button to attach visual behaviors (Color, Scale, Canvas Group, Font, etc.).
+3. Modules are serializable and do not require separate `MonoBehaviour` components on your GameObject.
+
 ### Navigation Attributes
 
 Use `ViewShowButtonAttribute` on a `Button` field in your `UICanvasView` to automatically subscribe it to show another view.
@@ -53,10 +63,6 @@ public class MainMenuView : UICanvasView
     private Button _settingsButton;
 }
 ```
-
-### Selectable Elements
-
-Use `SelectableElement` to toggle selection state and listen for changes via events or implement `ISelectableElementVisualModule`.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

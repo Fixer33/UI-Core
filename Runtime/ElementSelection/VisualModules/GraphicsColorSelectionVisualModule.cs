@@ -1,11 +1,12 @@
 using System;
+using UI.ElementSelection;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.ElementSelection.VisualModules
 {
-    [AddComponentMenu("UI/Element Selection/Modules/Graphics color SVM")]
-    public class GraphicsColorSelectionVisualModule : StandaloneAnimatedSVM
+    [Serializable]
+    public class GraphicsColorSelectionVisualModule : SelectableElementModule
     {
         [SerializeField] private Graphic _graphic;
         [SerializeField] private Color _defaultColor = Color.white, _selectedColor = Color.white;
@@ -61,6 +62,18 @@ namespace UI.ElementSelection.VisualModules
             _overriddenPremium = null;
         }
 
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_graphic == null)
+            {
+                errorMessage = "Graphic is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
         private void UpdateColor()
         {
             if (_graphic == null) return;
@@ -84,11 +97,12 @@ namespace UI.ElementSelection.VisualModules
         private void SetColor(Color targetColor)
         {
             _targetColor = targetColor;
-            _startColor = _graphic.color;
+            _startColor = _graphic != null ? _graphic.color : Color.white;
 
             StartAnimation(t =>
             {
-                _graphic.color = Color.Lerp(_startColor, _targetColor, t);
+                if (_graphic != null)
+                    _graphic.color = Color.Lerp(_startColor, _targetColor, t);
             });
         }
     }

@@ -4,18 +4,24 @@ using UnityEngine;
 
 namespace UI.ElementSelection
 {
-    public abstract class StandaloneAnimatedSVM : MonoBehaviour, ISelectableElementVisualModule
+    [Serializable]
+    public abstract class SelectableElementModule : ISelectableElementVisualModule
     {
         [Header("Animation")]
         [SerializeField] protected bool _animate;
         [SerializeField] protected float _duration = 0.1f;
         [SerializeField] protected bool _useUnscaledTime = true;
 
+        protected MonoBehaviour _owner;
         private Coroutine _animationCoroutine;
 
-        public bool IsElementAlive => this;
+        public bool IsElementAlive => _owner != null;
 
-        public virtual void OnInitialized() {}
+        public virtual void OnInitialized(MonoBehaviour owner)
+        {
+            _owner = owner;
+        }
+
         public abstract void OnSelectionChanged(bool isSelected);
         public virtual void OnHoverChanged(bool isHovered) {}
         public virtual void OnPremium(bool isInPremiumState) {}
@@ -25,16 +31,23 @@ namespace UI.ElementSelection
         public virtual void SetAlphaOverride(SelectionVisualState state, bool enabled, float value) {}
         public virtual void SetFontOverride(SelectionVisualState state, bool enabled, TMPro.TMP_FontAsset value) {}
         public virtual void SetToggleOverride(SelectionVisualState state, bool enabled, bool value) {}
+        public virtual void SetScaleOverride(SelectionVisualState state, bool enabled, Vector3 value) {}
 
         public virtual void ClearOverrides() {}
+
+        public virtual bool IsValid(out string errorMessage)
+        {
+            errorMessage = null;
+            return true;
+        }
 
         protected void StartAnimation(Action<float> updateAction)
         {
             StopAnimation();
 
-            if (_animate && Application.isPlaying && gameObject.activeInHierarchy)
+            if (_animate && Application.isPlaying && _owner != null && _owner.gameObject.activeInHierarchy)
             {
-                _animationCoroutine = StartCoroutine(AnimationRoutine(updateAction));
+                _animationCoroutine = _owner.StartCoroutine(AnimationRoutine(updateAction));
             }
             else
             {
@@ -44,9 +57,9 @@ namespace UI.ElementSelection
 
         protected void StopAnimation()
         {
-            if (_animationCoroutine != null)
+            if (_animationCoroutine != null && _owner != null)
             {
-                StopCoroutine(_animationCoroutine);
+                _owner.StopCoroutine(_animationCoroutine);
                 _animationCoroutine = null;
             }
         }
@@ -69,11 +82,6 @@ namespace UI.ElementSelection
 
             updateAction(1f);
             _animationCoroutine = null;
-        }
-
-        protected virtual void OnDisable()
-        {
-            StopAnimation();
         }
     }
 }

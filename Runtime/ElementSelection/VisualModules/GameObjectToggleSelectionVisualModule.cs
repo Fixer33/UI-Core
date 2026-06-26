@@ -1,9 +1,12 @@
+using System;
+using UI.ElementSelection;
 using UnityEngine;
 
 namespace UI.ElementSelection.VisualModules
 {
     [AddComponentMenu("UI/Element Selection/Modules/GameObject toggle SVM")]
-    public class GameObjectToggleSelectionVisualModule : StandaloneAnimatedSVM
+    [Serializable]
+    public class GameObjectToggleSelectionVisualModule : SelectableElementModule
     {
         [SerializeField] private GameObject _gameObject;
         [SerializeField] private SelectionModuleState<bool> _normalValue = new SelectionModuleState<bool> { Enabled = true, Value = false };
@@ -56,6 +59,18 @@ namespace UI.ElementSelection.VisualModules
             _overriddenSelected = null;
             _overriddenHovered = null;
             _overriddenPremium = null;
+        }
+
+        public override bool IsValid(out string errorMessage)
+        {
+            if (_gameObject == null)
+            {
+                errorMessage = "GameObject is not assigned";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         private void UpdateActive()

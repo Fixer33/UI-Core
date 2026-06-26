@@ -14,21 +14,33 @@ namespace UI.Editor.CustomButtons
         {
             var root = new VisualElement();
 
-            // PropertyField for m_Interactable
-            var interactable = new PropertyField(serializedObject.FindProperty("m_Interactable"));
-            root.Add(interactable);
+            // Draw base properties
+            var iterator = serializedObject.GetIterator();
+            bool enterChildren = true;
+            while (iterator.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+                
+                // Hide modules and script
+                if (iterator.name == "_visualComponents" || iterator.name == "m_Script")
+                    continue;
 
-            // Hide transition field by not adding it
-            // var transition = new PropertyField(serializedObject.FindProperty("m_Transition"));
-            // root.Add(transition);
+                // Hide transition fields from base Button
+                if (iterator.name == "m_Transition" || 
+                    iterator.name == "m_Colors" || 
+                    iterator.name == "m_SpriteState" || 
+                    iterator.name == "m_AnimationTriggers" ||
+                    iterator.name == "m_TargetGraphic")
+                {
+                    continue;
+                }
 
-            // Add navigation
-            var navigation = new PropertyField(serializedObject.FindProperty("m_Navigation"));
-            root.Add(navigation);
+                root.Add(new PropertyField(iterator));
+            }
 
-            // Add onClick
-            var onClick = new PropertyField(serializedObject.FindProperty("m_OnClick"));
-            root.Add(onClick);
+            // Draw modules
+            var modulesProp = serializedObject.FindProperty("_visualComponents");
+            ModuleListEditorHelper.CreateModuleList(root, modulesProp, typeof(ICustomButtonVisualComponent), "Visual Components (Modules)");
 
             return root;
         }
